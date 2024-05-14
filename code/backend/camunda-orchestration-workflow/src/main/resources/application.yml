@@ -1,0 +1,38 @@
+spring:
+  # postgresql datasource
+  datasource:
+    url: jdbc:postgresql://localhost:5432/camunda
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 5
+      minimum-idle: 1
+      idle-timeout: 30000
+      max-lifetime: 60000
+      connection-timeout: 30000
+
+dubbo:
+  application:
+    logger: slf4j
+    name: CamundaOrchestrationApplication
+  registry:
+    address: nacos://localhost:8848
+  serialization:
+    security: none
+  protocol:
+    name: tri
+    port: 50051
+server:
+  port: 9090
+
+camunda:
+  bpm:
+    database:
+      schema-update: true
+    admin-user:
+      id: admin
+      password: admin
+    process-engine-name: default
+    history-level: full
+

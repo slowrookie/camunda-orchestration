@@ -1,4 +1,4 @@
-package com.github.slowrookie.biz.dubbo.consumer;
+package com.github.slowrookie.co.biz.dubbo.consumer;
 
 import com.github.slowrookie.co.dubbo.api.DemoService;
 

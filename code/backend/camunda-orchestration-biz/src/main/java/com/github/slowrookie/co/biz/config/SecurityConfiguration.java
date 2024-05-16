@@ -1,4 +1,4 @@
-package com.github.slowrookie.biz.config;
+package com.github.slowrookie.co.biz.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,10 +19,11 @@ public class SecurityConfiguration{
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .securityMatcher("/messages/**")
-//                .authorizeHttpRequests(authorize ->
+//                .securityMatcher("/messages/**")
+                .authorizeHttpRequests(authorize ->
+                        authorize.anyRequest().authenticated()
 //                        authorize.requestMatchers("/messages/**").hasAuthority("SCOPE_message.read")
-//                )
+                )
                 .sessionManagement(sessionManagement ->
                         sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS) // Make session stateless
                 )

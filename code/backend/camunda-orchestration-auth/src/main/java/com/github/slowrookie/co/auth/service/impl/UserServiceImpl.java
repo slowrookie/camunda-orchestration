@@ -1,10 +1,11 @@
-package com.github.slowrookie.co.service.impl;
+package com.github.slowrookie.co.auth.service.impl;
 
+import com.github.slowrookie.co.auth.model.CoUserDetail;
+import com.github.slowrookie.co.auth.model.User;
+import com.github.slowrookie.co.auth.repository.IUseRepository;
+import com.github.slowrookie.co.auth.service.IUserService;
 import com.github.slowrookie.co.dubbo.api.ICamundaIdentityService;
 import com.github.slowrookie.co.dubbo.dto.CamundaUser;
-import com.github.slowrookie.co.model.User;
-import com.github.slowrookie.co.repository.IUseRepository;
-import com.github.slowrookie.co.service.IUserService;
 import jakarta.annotation.Resource;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -13,6 +14,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 /**
  * @author jiaxing.liu
@@ -34,7 +37,13 @@ public class UserServiceImpl implements UserDetailsService, IUserService {
         if (user == null) {
             throw new UsernameNotFoundException("User not found");
         }
-        return user;
+        CoUserDetail coUserDetail = CoUserDetail.fromUser(user);
+        return coUserDetail;
+    }
+
+    @Override
+    public Optional<User> getUser(String id) {
+        return useRepository.findById(id);
     }
 
     @Transactional

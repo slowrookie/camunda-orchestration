@@ -19,8 +19,9 @@
 
     <modules>
         <module>camunda-orchestration-api</module>
-        <module>camunda-orchestration-service</module>
+        <module>camunda-orchestration-biz</module>
         <module>camunda-orchestration-workflow</module>
+        <module>camunda-orchestration-auth</module>
     </modules>
 
     <dependencyManagement>
@@ -53,7 +54,7 @@
             </dependency>
             <dependency>
                 <groupId>com.github.slowrookie</groupId>
-                <artifactId>camunda-orchestration-service</artifactId>
+                <artifactId>camunda-orchestration-biz</artifactId>
                 <version>0.0.1-SNAPSHOT</version>
             </dependency>
         </dependencies>

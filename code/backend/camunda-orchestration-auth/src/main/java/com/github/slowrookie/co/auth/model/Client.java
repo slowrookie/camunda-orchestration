@@ -1,4 +1,4 @@
-package com.github.slowrookie.co.model;
+package com.github.slowrookie.co.auth.model;
 
 import jakarta.persistence.*;
 import lombok.Data;

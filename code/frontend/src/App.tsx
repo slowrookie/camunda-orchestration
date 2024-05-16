@@ -4,6 +4,7 @@ import { SWRConfig, SWRConfiguration } from 'swr';
 import './App.css';
 import { Login } from './pages/login';
 import { MainLayout } from './pages/main-layout';
+import { defaultFetcherWithToken } from './services/api.service';
 
 const useStyles = makeStyles({
   root: {
@@ -37,6 +38,7 @@ function App() {
   const { dispatchToast } = useToastController(httpErrorTasterId);
 
   const GloabalSWRConfig: SWRConfiguration = {
+    fetcher: defaultFetcherWithToken,
     onError: (err, key) => {
         dispatchToast(
             <Toast>

@@ -13,6 +13,7 @@ import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.endpoint.OidcParameterNames;
 import org.springframework.security.oauth2.server.authorization.OAuth2Authorization;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationCode;
+import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
 import org.springframework.security.oauth2.server.authorization.OAuth2TokenType;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
@@ -32,18 +33,18 @@ import java.util.function.Consumer;
  * @date 2024/5/16
  **/
 @Service
-public class OAuth2AuthorizationService implements OAuth2AuthorizationService {
+public class JpaOAuth2AuthorizationService implements OAuth2AuthorizationService {
     private final AuthorizationRepository authorizationRepository;
     private final RegisteredClientRepository registeredClientRepository;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public OAuth2AuthorizationService(AuthorizationRepository authorizationRepository, RegisteredClientRepository registeredClientRepository) {
+    public JpaOAuth2AuthorizationService(AuthorizationRepository authorizationRepository, RegisteredClientRepository registeredClientRepository) {
         Assert.notNull(authorizationRepository, "authorizationRepository cannot be null");
         Assert.notNull(registeredClientRepository, "registeredClientRepository cannot be null");
         this.authorizationRepository = authorizationRepository;
         this.registeredClientRepository = registeredClientRepository;
 
-        ClassLoader classLoader = OAuth2AuthorizationService.class.getClassLoader();
+        ClassLoader classLoader = JpaOAuth2AuthorizationService.class.getClassLoader();
         List<Module> securityModules = SecurityJackson2Modules.getModules(classLoader);
         this.objectMapper.registerModules(securityModules);
         this.objectMapper.registerModule(new OAuth2AuthorizationServerJackson2Module());

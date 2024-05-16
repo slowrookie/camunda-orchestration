@@ -1,6 +1,6 @@
-package com.github.slowrookie.co.repository;
+package com.github.slowrookie.co.auth.repository;
 
-import com.github.slowrookie.co.model.Group;
+import com.github.slowrookie.co.auth.model.Group;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 /**

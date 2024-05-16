@@ -2,29 +2,24 @@ server:
   port: 9000
 
 spring:
-  data:
-    redis:
-      host: localhost
-      port: 6379
-      password:
+  application:
+    name: CamundaOrchestrationAuthApplication
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://localhost:9000/oauth2/jwks
   jpa:
     generate-ddl: true
+    show-sql: true
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: update
-      show-sql: true
   datasource:
       url: jdbc:postgresql://localhost:5432/camunda?currentSchema=orchestration
       username: postgres
       password: postgres
       driver-class-name: org.postgresql.Driver
-  application:
-    name: CamundaOrchestrationApplication
-    security:
-      secret-key: 686B633834416E396D7436753879382F423F4428482B4C6250655367566B5970
-      expiration: 86400000 # 1 day in ms
-      refresh-token:
-        expiration: 1296000000 # 15 days in ms
 
 dubbo:
   application:
@@ -35,3 +30,9 @@ dubbo:
   protocol:
     name: tri
     port: 50052
+
+logging:
+  level:
+    org:
+      springframework:
+        security: DEBUG

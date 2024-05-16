@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.github.slowrookie.biz.demos.web;
+package com.github.slowrookie.co.biz.demos.web;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;

@@ -1,4 +1,4 @@
-package com.github.slowrookie.co.model;
+package com.github.slowrookie.co.auth.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -14,7 +14,7 @@ import java.util.List;
  * @date 2024/5/10
  **/
 @Entity
-@Table(name = "co_group")
+@Table(name = "auth_group")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

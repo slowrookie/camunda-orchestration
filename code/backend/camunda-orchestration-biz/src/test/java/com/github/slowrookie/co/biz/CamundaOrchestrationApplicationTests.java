@@ -1,4 +1,4 @@
-package com.github.slowrookie.biz;
+package com.github.slowrookie.co.biz;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

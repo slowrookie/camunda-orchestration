@@ -1,4 +1,4 @@
-package com.github.slowrookie.auth;
+package com.github.slowrookie.co.auth;
 
 
 import jakarta.annotation.Resource;

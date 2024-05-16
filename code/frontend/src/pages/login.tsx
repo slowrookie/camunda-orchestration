@@ -1,7 +1,7 @@
-import { Button, Input, Spinner, makeStyles, shorthands, tokens } from "@fluentui/react-components";
+import { Button, Image, Input, Spinner, makeStyles, shorthands, tokens, typographyStyles } from "@fluentui/react-components";
 import { LockClosedRegular, PersonRegular } from "@fluentui/react-icons";
 import LoginIllustration from '../assets/login-illustration.svg';
-import { useLogin, LoginUser } from "../services/auth.service";
+import { useSignIn, LoginUser } from "../services/auth.service";
 import { useState } from "react";
 
 const useStyles = makeStyles({
@@ -30,13 +30,15 @@ const useStyles = makeStyles({
     minWidth: "300px",
     padding: tokens.spacingVerticalXXXL,
   },
-  loginPanelProjectName: {
-    color: tokens.colorBrandBackground,
-    fontSize: tokens.fontSizeHero700,
-    lineHeight: tokens.lineHeightHero700,
-    fontWeight: tokens.fontWeightSemibold,
-    marginBottom: tokens.spacingVerticalXXXL,
+  projectTitle: {
+    ...typographyStyles.title2,
+    marginBottom: tokens.spacingVerticalS,
     textAlign: "center",
+  },
+  projectSubTitle: {
+    ...typographyStyles.subtitle2,
+    textAlign: "center",
+    marginBottom: tokens.spacingVerticalXXXL,
   },
   loginPanelTitle: {
     fontSize: tokens.fontSizeBase400,
@@ -58,7 +60,7 @@ const useStyles = makeStyles({
 export const Login = () => {
   const styles = useStyles();
   const [loginUser, setLoginUser] = useState<LoginUser>({ username: "", password: "" });
-  const { isMutating, trigger } = useLogin();
+  const { isMutating, trigger } = useSignIn();
 
   const handleLogin = () => {
     trigger(loginUser);
@@ -67,11 +69,10 @@ export const Login = () => {
   return (<>
     <div className={styles.loginPage}>
       <div className={styles.loginContainer}>
-        <div className={styles.loginImg}>
-          <img src={LoginIllustration} alt="Login illustration" />
-        </div>
+        <Image className={styles.loginImg} src={LoginIllustration} alt="Login illustration" />
         <div className={styles.loginPanel}>
-          <div className={styles.loginPanelProjectName}>业务建探索与模实践</div>
+          <div className={styles.projectTitle}>业务流程建模</div>
+          <div className={styles.projectSubTitle}>(探索与模实践)</div>
           <div className={styles.loginPanelTitle}>账号登录</div>
           <div className={styles.loginForm}>
             <div className={styles.field}>

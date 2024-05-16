@@ -8,6 +8,7 @@ import org.springframework.security.jackson2.SecurityJackson2Modules;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
+import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.jackson2.OAuth2AuthorizationServerJackson2Module;
 import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
 import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
@@ -21,15 +22,15 @@ import java.util.Map;
 import java.util.Set;
 
 @Service
-public class RegisteredClientRepository implements org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository {
+public class JpaRegisteredClientRepository implements RegisteredClientRepository {
     private final ClientRepository clientRepository;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public RegisteredClientRepository(ClientRepository clientRepository) {
+    public JpaRegisteredClientRepository(ClientRepository clientRepository) {
         Assert.notNull(clientRepository, "clientRepository cannot be null");
         this.clientRepository = clientRepository;
 
-        ClassLoader classLoader = RegisteredClientRepository.class.getClassLoader();
+        ClassLoader classLoader = JpaRegisteredClientRepository.class.getClassLoader();
         List<Module> securityModules = SecurityJackson2Modules.getModules(classLoader);
         this.objectMapper.registerModules(securityModules);
         this.objectMapper.registerModule(new OAuth2AuthorizationServerJackson2Module());
@@ -81,11 +82,15 @@ public class RegisteredClientRepository implements org.springframework.security.
                 .postLogoutRedirectUris((uris) -> uris.addAll(postLogoutRedirectUris))
                 .scopes((scopes) -> scopes.addAll(clientScopes));
 
-        Map<String, Object> clientSettingsMap = parseMap(client.getClientSettings());
-        builder.clientSettings(ClientSettings.withSettings(clientSettingsMap).build());
+        if (StringUtils.hasText(client.getClientSettings())) {
+            Map<String, Object> clientSettingsMap = parseMap(client.getClientSettings());
+            builder.clientSettings(ClientSettings.withSettings(clientSettingsMap).build());
+        }
 
-        Map<String, Object> tokenSettingsMap = parseMap(client.getTokenSettings());
-        builder.tokenSettings(TokenSettings.withSettings(tokenSettingsMap).build());
+        if (StringUtils.hasText(client.getTokenSettings())) {
+            Map<String, Object> tokenSettingsMap = parseMap(client.getTokenSettings());
+            builder.tokenSettings(TokenSettings.withSettings(tokenSettingsMap).build());
+        }
 
         return builder.build();
     }

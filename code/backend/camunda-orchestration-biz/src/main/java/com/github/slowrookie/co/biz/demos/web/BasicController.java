@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.github.slowrookie.biz.demos.web;
+package com.github.slowrookie.co.biz.demos.web;
 
 import com.github.slowrookie.co.dubbo.api.DemoService;
 import org.apache.dubbo.config.annotation.DubboReference;

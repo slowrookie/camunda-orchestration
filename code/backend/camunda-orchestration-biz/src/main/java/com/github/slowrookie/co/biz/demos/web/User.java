@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.github.slowrookie.biz.demos.web;
+package com.github.slowrookie.co.biz.demos.web;
 
 /**
  * @author <a href="mailto:chenxilzx1@gmail.com">theonefx</a>

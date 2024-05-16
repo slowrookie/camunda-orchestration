@@ -1,6 +1,7 @@
-package com.github.slowrookie.co.auth.service.impl;
+package com.github.slowrookie.co.auth.service;
 
-import com.github.slowrookie.co.model.Group;
+
+import com.github.slowrookie.co.auth.model.Group;
 
 /**
  * @author jiaxing.liu

@@ -1,13 +1,14 @@
 import { Button, Image, Input, Spinner, makeStyles, shorthands, tokens, typographyStyles } from "@fluentui/react-components";
 import { LockClosedRegular, PersonRegular } from "@fluentui/react-icons";
 import LoginIllustration from '../assets/login-illustration.svg';
-import { useSignIn, LoginUser } from "../services/auth.service";
+import { signIn, LoginUser } from "../services/auth.service";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const useStyles = makeStyles({
   loginPage: {
     display: "flex",
-    flexDirection: "row",
+    flexDirection: "column",
     justifyContent: "center",
     alignItems: "center",
     height: "100vh",
@@ -59,11 +60,16 @@ const useStyles = makeStyles({
 
 export const Login = () => {
   const styles = useStyles();
+  const navigate = useNavigate();
   const [loginUser, setLoginUser] = useState<LoginUser>({ username: "", password: "" });
-  const { isMutating, trigger } = useSignIn();
+  const [isLoging, setIsLoging] = useState(false);
 
   const handleLogin = () => {
-    trigger(loginUser);
+    setIsLoging(true);
+    signIn(loginUser).then(() => {
+      setIsLoging(false);
+      navigate("/dashboard");
+    });
   }
 
   return (<>
@@ -87,8 +93,8 @@ export const Login = () => {
             </div>
             <div className={styles.field}>
               <Button appearance="primary" size="large" onClick={handleLogin}
-                disabledFocusable={isMutating || !loginUser.username || !loginUser.password}
-                icon={isMutating ? <Spinner size="tiny" /> : undefined}
+                disabledFocusable={isLoging || !loginUser.username || !loginUser.password}
+                icon={isLoging ? <Spinner size="tiny" /> : undefined}
               >登录</Button>
             </div>
           </div>

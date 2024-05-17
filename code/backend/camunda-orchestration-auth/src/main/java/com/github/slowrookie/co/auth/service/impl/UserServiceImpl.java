@@ -8,6 +8,8 @@ import com.github.slowrookie.co.dubbo.api.ICamundaIdentityService;
 import com.github.slowrookie.co.dubbo.dto.CamundaUser;
 import jakarta.annotation.Resource;
 import org.apache.dubbo.config.annotation.DubboReference;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -37,8 +39,17 @@ public class UserServiceImpl implements UserDetailsService, IUserService {
         if (user == null) {
             throw new UsernameNotFoundException("User not found");
         }
-        CoUserDetail coUserDetail = CoUserDetail.fromUser(user);
-        return coUserDetail;
+        return CoUserDetail.fromUser(user);
+    }
+
+    @Override
+    public boolean existsByUsername(String username) {
+        return useRepository.existsByUsername(username);
+    }
+
+    @Override
+    public Page<User> findAll(Pageable pageable) {
+        return useRepository.findAll(pageable);
     }
 
     @Override
@@ -50,7 +61,7 @@ public class UserServiceImpl implements UserDetailsService, IUserService {
     @Override
     public User newUser(User user) {
         String rawPassword = user.getPassword();
-        if (useRepository.findByUsername(user.getUsername()) != null) {
+        if (existsByUsername(user.getUsername())) {
             throw new RuntimeException("User already exists");
         }
         user.setPassword(passwordEncoder.encode(user.getPassword()));

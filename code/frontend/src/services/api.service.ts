@@ -1,62 +1,53 @@
+import axios from "axios";
 import { getAuthorizedAccess } from "./auth.service";
 
-export const defaultFetcherWithToken = async (url: string) => {
-  const authorizedAccess = getAuthorizedAccess();
-  if (!authorizedAccess || !authorizedAccess.access_token || !authorizedAccess.token_type) {
-    window.location.href = '/login';
-    return;
-  }
-  const requestInit: RequestInit = {
-    headers: {
-      "Authorization": `${authorizedAccess?.token_type} ${authorizedAccess?.access_token}`
-    }
-  }
-  return fetch(url, requestInit).then((res: Response) => {
-    if (res.status === 401) {
-      window.location.href = '/login';
-      return;
-    }
-
-    if (!res.ok) {
-      const error = new Error(`${res.status} An error occurred while default fetching`);
-      throw error;
-    }
-    
-    if (res.status === 204) {
-      return null;
-    }
-    
-    return res.json();
-  });
+export type Page<T> = {
+  content: T[];
+  empty: boolean;
+  first: boolean;
+  last: boolean;
+  number: number;
+  numberOfElements: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
 }
 
-export const postFetcher = async <T>(url: string, { arg }: { arg: T }) => {
-  const authorizedAccess = getAuthorizedAccess();
-  if (!authorizedAccess || !authorizedAccess.access_token || !authorizedAccess.token_type) {
-    window.location.href = '/login';
-    return;
-  }
-  const requestInit: RequestInit = {
-    method: 'POST',
-    headers: {
-      "Authorization": `${authorizedAccess?.token_type} ${authorizedAccess?.access_token}`,
-      'Content-Type': 'application/json'
-    },
-    body: arg as any
-  }
+export type PageRequest = {
+  number: number;
+  size: number;
+}
 
-  const res = await fetch(url, requestInit);
-  if (res.status === 401) {
-    window.location.href = '/login';
-    return;
-  }
-  if (!res.ok) {
-    const error = new Error(`${res.status} An error occurred while post fetching`);
-    throw error;
-  }
-  // no content
-  if (res.status === 204) {
-    return null;
-  }
-  return res.json();
+
+export const setupAxiosInterceptors = () => {
+  // 添加请求拦截器
+  axios.interceptors.request.use((config) => {
+    // 在发送请求之前做些什么
+    const authorizedAccess = getAuthorizedAccess();
+    if (!authorizedAccess || !authorizedAccess.access_token || !authorizedAccess.token_type) {
+      window.location.href = '/app/login';
+      return config;
+    }
+    config.headers.Authorization = `${authorizedAccess?.token_type} ${authorizedAccess?.access_token}`;
+    return config;
+  }, function (error) {
+    // 对请求错误做些什么
+    return Promise.reject(error);
+  });
+
+  // 添加响应拦截器
+  axios.interceptors.response.use((response) => {
+    // 2xx 范围内的状态码都会触发该函数。
+    // 对响应数据做点什么
+    return response;
+  }, function (error) {
+    // 超出 2xx 范围的状态码都会触发该函数。
+    // 对响应错误做点什么
+    console.log(error);
+    if (error.response.status === 401) {
+      window.location.href = '/app/login';
+    }
+
+    return Promise.reject(error);
+  });
 }

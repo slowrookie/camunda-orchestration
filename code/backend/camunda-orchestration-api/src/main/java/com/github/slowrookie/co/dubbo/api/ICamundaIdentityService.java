@@ -13,6 +13,6 @@ public interface ICamundaIdentityService {
 
     CamundaUser getUser(String userId);
 
-    public void createGroup(CamundaGroup camundaGroup);
+    void createGroup(CamundaGroup camundaGroup);
 
 }

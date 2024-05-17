@@ -1,7 +1,5 @@
-import useSWRMutation, { SWRMutationResponse } from "swr/mutation";
-import {useNavigate} from "react-router-dom";
-import { defaultFetcherWithToken, postFetcher } from "./api.service";
-import useSWR, { SWRResponse } from "swr";
+import axios from "axios";
+import { Page, PageRequest } from "./api.service";
 
 export type LoginUser = {
   username: string;
@@ -20,64 +18,31 @@ export type AuthorizedAccess = {
   token_type: string;
 }
 
+export type User = {
+  id: string;
+  username: string;
+}
+
 const client_id = 'test';
 const client_secret = 'test';
 const basicAuth = btoa(`${client_id}:${client_secret}`);
+const instance = axios.create();
 
-// signIn
-const signInFetcher = async <LoginUser>(url: string, { arg }: { arg: LoginUser }) => {
+export const signIn = async (u: LoginUser): Promise<AuthorizedAccess> => {
   const formdata = new FormData();
   formdata.append('grant_type', 'password');
-  formdata.append('username', (arg as any).username);
-  formdata.append('password', (arg as any).password);
+  formdata.append('username', u.username);
+  formdata.append('password', u.password);
 
-  const res = await fetch(url, {
-    method: 'POST',
+  return instance.postForm('/api/auth/oauth2/token', formdata, {
     headers: {
       'Authorization': `Basic ${basicAuth}`,
     },
-    body: formdata
+  }).then((res) => {
+    axios.defaults.headers.common['Authorization'] = `${res.data.token_type} ${res.data.access_token}`;
+    localStorage.setItem('authorizedAccss', JSON.stringify(res.data));
+    return res.data;
   });
-  if (!res.ok) {
-    const error = new Error(`${res.status} An error occurred while login fetching`);
-    throw error;
-  }
-  return res.json();
-}
-
-// signIn
-const signOutFetcher = async (url: string, { arg }: { arg: any }) => {
-  const authorizedAccess = getAuthorizedAccess();
-  if (!authorizedAccess || !authorizedAccess.access_token || !authorizedAccess.token_type) {
-    window.location.href = '/login';
-    return;
-  }
-
-  const formdata = new FormData();
-  formdata.append('token', authorizedAccess.access_token);
-
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Basic ${basicAuth}`,
-    },
-    body: formdata
-  });
-  if (!res.ok) {
-    const error = new Error(`${res.status} An error occurred while login fetching`);
-    throw error;
-  }
-}
-
-export const useSignIn = (): SWRMutationResponse<any, any, string, LoginUser> => {
-  const navigator = useNavigate();
-  
-  return useSWRMutation('/api/auth/oauth2/token', signInFetcher, {
-    onSuccess(data: AuthorizedAccess) {
-      localStorage.setItem('authorizedAccss', JSON.stringify(data));
-      navigator('/');
-    },
-  })
 }
 
 // get token
@@ -89,17 +54,35 @@ export const getAuthorizedAccess = (): (AuthorizedAccess | null) => {
   return null;
 }
 
-export const useSignOut = (): SWRMutationResponse<any, any, string, any> => {
-  const navigator = useNavigate();
-  return useSWRMutation('/api/auth/oauth2/revoke', signOutFetcher, {
-    onSuccess: () => {
-      localStorage.removeItem('authorizedAccss');
-      navigator('/login');
-    }
+export const signOut = async (): Promise<any> => {
+  const authorizedAccess = getAuthorizedAccess();
+  if (!authorizedAccess || !authorizedAccess.access_token || !authorizedAccess.token_type) {
+    window.location.href = '/app/login';
+    return;
+  }
+
+  const formdata = new FormData();
+  formdata.append('token', authorizedAccess.access_token);
+
+  return instance.postForm('/api/auth/oauth2/revoke', {
+    token: authorizedAccess.access_token,
+  }, {
+    headers: {
+      'Authorization': `Basic ${basicAuth}`,
+    },
+  }).then(() => {
+    axios.defaults.headers.common['Authorization'] = '';
+    localStorage.removeItem('authorizedAccss');
   });
 }
 
 // me
-export const useMe = (): SWRResponse<Me> => {
-  return useSWR('/api/auth/oauth2/me');
+export const me = async (): Promise<Me> => {
+  return axios.get('/api/auth/oauth2/me')
+    .then((res) => res.data);
+}
+
+export const users = async (pageRequest: PageRequest): Promise<Page<User>> => {
+  return axios.get(`/api/auth/users?page=${pageRequest.number}&size=${pageRequest.size}`)
+    .then((res) => res.data);
 }

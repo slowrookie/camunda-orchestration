@@ -1,10 +1,10 @@
-import { Toast, ToastBody, ToastTitle, Toaster, makeStyles, useId, useToastController, tokens } from '@fluentui/react-components';
-import { RouterProvider, createBrowserRouter } from 'react-router-dom';
-import { SWRConfig, SWRConfiguration } from 'swr';
+import { Toast, ToastBody, ToastTitle, Toaster, makeStyles, tokens, useId, useToastController } from '@fluentui/react-components';
+import { Navigate, RouterProvider, createBrowserRouter } from 'react-router-dom';
 import './App.css';
-import { Login } from './pages/login';
-import { MainLayout } from './pages/main-layout';
-import { defaultFetcherWithToken } from './services/api.service';
+import { Login } from './pages/login.page';
+import { MainLayout } from './pages/main.layout';
+import { setupAxiosInterceptors } from './services/api.service';
+import { useEffect } from 'react';
 
 const useStyles = makeStyles({
   root: {
@@ -13,13 +13,21 @@ const useStyles = makeStyles({
   }
 });
 
+setupAxiosInterceptors();
+
 function App() {
   const styles = useStyles();
-  
+
+  useEffect(() => {
+    if (window.location.pathname === '/') {
+      window.location.href = '/app';
+    }
+  }, []);
+
   const router = createBrowserRouter(
     [
       {
-        path: '/',
+        path: '/dashboard/*',
         element: <MainLayout />
       },
       {
@@ -27,38 +35,26 @@ function App() {
         element: <Login />
       },
       {
-        path: '/users',
-        element: <div>Hello users!</div>
+        path: '/',
+        element: <Navigate to="/dashboard" replace/>
       },
     ],
+    {
+      basename: '/app',
+    }
   );
 
   // http error toaster
   const httpErrorTasterId = useId('http-error-toaster');
   const { dispatchToast } = useToastController(httpErrorTasterId);
 
-  const GloabalSWRConfig: SWRConfiguration = {
-    fetcher: defaultFetcherWithToken,
-    onError: (err, key) => {
-        dispatchToast(
-            <Toast>
-              <ToastTitle>{key}</ToastTitle>
-              <ToastBody>{err.message}</ToastBody>
-            </Toast>,
-            {intent: "error", position: "top-end"}
-        )
-    },
-};
-  
 
   return (
     <div className={styles.root}>
-      <SWRConfig value={GloabalSWRConfig}>
         <Toaster toasterId={httpErrorTasterId} />
         <RouterProvider router={router} />
-      </SWRConfig>
     </div>
-    )
+  )
 }
 
 export default App

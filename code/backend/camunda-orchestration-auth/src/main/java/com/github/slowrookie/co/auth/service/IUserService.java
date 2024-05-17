@@ -1,6 +1,8 @@
 package com.github.slowrookie.co.auth.service;
 
 import com.github.slowrookie.co.auth.model.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.Optional;
 
@@ -10,6 +12,9 @@ import java.util.Optional;
  **/
 public interface IUserService {
 
+    Page<User> findAll(Pageable pageable);
+
+    boolean existsByUsername(String username);
 
     Optional<User> getUser(String id);
 

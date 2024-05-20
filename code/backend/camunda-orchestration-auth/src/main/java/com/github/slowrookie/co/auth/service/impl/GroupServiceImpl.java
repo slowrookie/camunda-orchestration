@@ -3,6 +3,7 @@ package com.github.slowrookie.co.auth.service.impl;
 import com.github.slowrookie.co.auth.model.Group;
 import com.github.slowrookie.co.auth.model.User;
 import com.github.slowrookie.co.auth.repository.IGroupRepository;
+import com.github.slowrookie.co.auth.repository.IUserRepository;
 import com.github.slowrookie.co.auth.service.IGroupService;
 import com.github.slowrookie.co.dubbo.api.ICamundaIdentityService;
 import com.github.slowrookie.co.dubbo.dto.CamundaGroup;
@@ -11,7 +12,10 @@ import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -23,16 +27,17 @@ public class GroupServiceImpl implements IGroupService {
 
     @DubboReference
     private ICamundaIdentityService camundaIdentityService;
-
     @Resource
     private IGroupRepository groupRepository;
 
+
+    @Transactional
     @Override
     public void newGroup(Group group) {
+        group = groupRepository.save(group);
         CamundaGroup camundaGroup = new CamundaGroup();
         camundaGroup.setId(group.getId());
         camundaGroup.setName(group.getName());
-        groupRepository.save(group);
         camundaIdentityService.createGroup(camundaGroup);
     }
 

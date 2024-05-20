@@ -25,9 +25,8 @@ import {
   NavSubItem,
   NavSubItemGroup
 } from "@fluentui/react-nav-preview";
-import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Me, me, signOut } from "../services/auth.service";
+import { Me, signOut } from "../services/auth.service";
 
 const useStyles = makeStyles({
 });
@@ -37,17 +36,14 @@ const Workflow = bundleIcon(Flowchart20Filled, Flowchart20Regular);
 // const Settings = bundleIcon(Settings20Filled, Settings20Regular);
 const SignOut = bundleIcon(SignOut20Filled, SignOut20Regular);
 
+export type INavMenuProps = {
+  navDrawerProps?: NavDrawerProps;
+  me: Me | undefined;
+}
 
-export const NavMenu = (props: NavDrawerProps) => {
+export const NavMenu = (props: INavMenuProps) => {
   const styles = useStyles();
   const navigate = useNavigate();
-  const [currentUser, setCurrentUser] = useState<Me>();
-
-  useEffect(() => {
-    me().then((data: Me) => {
-      setCurrentUser(data);
-    });
-  }, []);
 
   const handleSignOut = () => {
     signOut().then(() => {
@@ -73,10 +69,10 @@ export const NavMenu = (props: NavDrawerProps) => {
           <Persona
             size="extra-large"
             textPosition="after"
-            name={currentUser?.username || "User"}
+            name={props.me?.username || "User"}
             avatar={{ color: "colorful" }}
             presence={{ status: "available" }}
-            secondaryText={currentUser?.id || "ID"}
+            secondaryText={props.me?.id || "ID"}
           />
         </NavDrawerHeaderNav>
         <Divider />

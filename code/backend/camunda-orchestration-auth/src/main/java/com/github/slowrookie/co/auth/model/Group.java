@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -16,6 +17,7 @@ import java.util.List;
 @Entity
 @Table(name = "auth_group")
 @Data
+@ToString(exclude = "users")
 @NoArgsConstructor
 @AllArgsConstructor
 public class Group implements Serializable {
@@ -30,7 +32,10 @@ public class Group implements Serializable {
     @Column(unique = true, nullable = false)
     private String name;
 
-    @ManyToMany(mappedBy = "groups", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinTable(name = "auth_group_user",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "group_id"))
     private List<User> users;
 
 }

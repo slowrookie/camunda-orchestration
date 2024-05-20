@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -35,10 +36,8 @@ public class User implements Serializable {
     @Column(nullable = false)
     private String password;
 
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinTable(name = "auth_user_group",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "group_id"))
+    @JsonIgnore
+    @ManyToMany(mappedBy = "users", fetch = FetchType.LAZY)
     private List<Group> groups;
 
 }

@@ -4,6 +4,7 @@ import com.github.slowrookie.co.auth.model.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -21,4 +22,5 @@ public interface IUserService {
     // 添加用户
     User newUser(User user);
 
+    List<User> findAllById(List<String> list);
 }

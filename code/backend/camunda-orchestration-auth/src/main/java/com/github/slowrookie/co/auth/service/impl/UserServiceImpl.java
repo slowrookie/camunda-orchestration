@@ -2,7 +2,7 @@ package com.github.slowrookie.co.auth.service.impl;
 
 import com.github.slowrookie.co.auth.model.CoUserDetail;
 import com.github.slowrookie.co.auth.model.User;
-import com.github.slowrookie.co.auth.repository.IUseRepository;
+import com.github.slowrookie.co.auth.repository.IUserRepository;
 import com.github.slowrookie.co.auth.service.IUserService;
 import com.github.slowrookie.co.dubbo.api.ICamundaIdentityService;
 import com.github.slowrookie.co.dubbo.dto.CamundaUser;
@@ -17,6 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -27,7 +28,7 @@ import java.util.Optional;
 public class UserServiceImpl implements UserDetailsService, IUserService {
 
     @Resource
-    private IUseRepository useRepository;
+    private IUserRepository useRepository;
     @Resource
     private PasswordEncoder passwordEncoder;
     @DubboReference
@@ -75,4 +76,8 @@ public class UserServiceImpl implements UserDetailsService, IUserService {
         return u;
     }
 
+    @Override
+    public List<User> findAllById(List<String> list) {
+        return useRepository.findAllById(list);
+    }
 }

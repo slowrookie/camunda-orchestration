@@ -4,10 +4,12 @@ import {
   tokens
 } from "@fluentui/react-components";
 import { Route, Routes } from "react-router-dom";
-import { NavMenu } from "../components/NavMenu";
+import { NavMenu } from "../components/nav-menu.component";
 import { UserPage } from "./user.page";
 import { GroupPage } from "./group.page";
 import { WorkflowPage } from "./worflow.page";
+import { useEffect, useState } from "react";
+import { Me, me } from "../services/auth.service";
 
 const useStyles = makeStyles({
   root: {
@@ -33,11 +35,18 @@ const useStyles = makeStyles({
 
 export const MainLayout = () => {
   const styles = useStyles();
+  const [currentUser, setCurrentUser] = useState<Me>();
+
+  useEffect(() => {
+    me().then((data: Me) => {
+      setCurrentUser(data);
+    });
+  }, []);
 
   return (
     <div className={styles.root}>
       <div className={styles.nav}>
-        <NavMenu />
+        <NavMenu me={currentUser}/>
       </div>
 
       <div className={styles.content}>

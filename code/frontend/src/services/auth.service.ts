@@ -19,8 +19,15 @@ export type AuthorizedAccess = {
 }
 
 export type User = {
-  id: string;
+  id?: string;
   username: string;
+  password?: string;
+}
+
+export type Group = {
+  id?: string
+  name: string
+  users?: User[]
 }
 
 const client_id = 'test';
@@ -82,7 +89,23 @@ export const me = async (): Promise<Me> => {
     .then((res) => res.data);
 }
 
-export const users = async (pageRequest: PageRequest): Promise<Page<User>> => {
+export const getUsers = async (pageRequest: PageRequest): Promise<Page<User>> => {
   return axios.get(`/api/auth/users?page=${pageRequest.number}&size=${pageRequest.size}`)
+    .then((res) => res.data);
+}
+
+export const createUser = async (u: User): Promise<User> => {
+  return axios.put('/api/auth/user', u)
+    .then((res) => res.data);
+}
+
+
+export const groups = async (pageRequest: PageRequest): Promise<Page<User>> => {
+  return axios.get(`/api/auth/groups?page=${pageRequest.number}&size=${pageRequest.size}`)
+    .then((res) => res.data);
+}
+
+export const createGroup = async (u: Group): Promise<User> => {
+  return u.id ? axios.post('/api/auth/group', u) : axios.put('/api/auth/group', u)
     .then((res) => res.data);
 }

@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { getAuthorizedAccess } from "./auth.service";
 
 export type Page<T> = {
@@ -19,7 +19,7 @@ export type PageRequest = {
 }
 
 
-export const setupAxiosInterceptors = () => {
+export const setupAxiosInterceptors = (responseCallback: (error: AxiosError<any>) => void) => {
   // 添加请求拦截器
   axios.interceptors.request.use((config) => {
     // 在发送请求之前做些什么
@@ -42,12 +42,12 @@ export const setupAxiosInterceptors = () => {
     return response;
   }, function (error) {
     // 超出 2xx 范围的状态码都会触发该函数。
+    error.response && responseCallback(error);
     // 对响应错误做点什么
     console.log(error);
-    if (error.response.status === 401) {
+    if (error.response && error.response.status === 401) {
       window.location.href = '/app/login';
     }
-
     return Promise.reject(error);
   });
 }

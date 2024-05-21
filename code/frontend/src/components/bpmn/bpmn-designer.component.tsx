@@ -10,7 +10,7 @@ import i18nCamundaProprtiesPanelZhCN from '../../i18n/zh_CN/camunda-properties-p
 import i18nPropertiesPanelZhCN from '../../i18n/zh_CN/properties-panel';
 import i18nBpmnJsZhCN from '../../i18n/zh_CN/bpmn-js';
 import i18nExtensionZhCN from '../../i18n/zh_CN/extension';
-import  customPropertiesProvider from "./provider/CustomProvider";
+import  customPropertiesProvider from "./provider/custom.provider";
 
 // i18n
 const translateModule = {

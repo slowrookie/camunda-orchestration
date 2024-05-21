@@ -4,6 +4,9 @@ import ReactDOM from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
 
+// camunda-bpmn-js
+import 'camunda-bpmn-js/dist/assets/camunda-platform-modeler.css';
+
 // ag-grid
 import "ag-grid-community/styles/ag-grid.css"; // Mandatory CSS required by the grid
 import "ag-grid-community/styles/ag-theme-quartz.css"; // Optional Theme applied to the grid

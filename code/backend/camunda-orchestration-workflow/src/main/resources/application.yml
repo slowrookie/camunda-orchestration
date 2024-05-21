@@ -16,10 +16,11 @@ dubbo:
   application:
     logger: slf4j
     name: CamundaOrchestrationApplication
+    serialize-check-status: DISABLE
   registry:
     address: nacos://localhost:8848
   serialization:
-    security: none
+    security: false
   protocol:
     name: tri
     port: 50051

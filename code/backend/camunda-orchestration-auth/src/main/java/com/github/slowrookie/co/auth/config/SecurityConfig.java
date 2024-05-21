@@ -7,9 +7,13 @@ import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.MediaType;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -36,8 +40,12 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.security.*;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.HashSet;
@@ -51,6 +59,18 @@ import java.util.UUID;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+
+    @Value("${spring.authorization.jwt.key-store}")
+    private String keyStorePath;
+
+    @Value("${spring.authorization.jwt.key-store-password}")
+    private String keyStorePassword;
+
+    @Value("${spring.authorization.jwt.key-alias}")
+    private String keyAlias;
+
+    @Autowired
+    private ResourceLoader resourceLoader;
 
     @Bean
     @Order(1)
@@ -178,30 +198,54 @@ public class SecurityConfig {
         };
     }
 
-    @Bean
-    public JWKSource<SecurityContext> jwkSource() {
-        KeyPair keyPair = generateRsaKey();
-        RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();
-        RSAPrivateKey privateKey = (RSAPrivateKey) keyPair.getPrivate();
-        RSAKey rsaKey = new RSAKey.Builder(publicKey)
-                .privateKey(privateKey)
-                .keyID(UUID.randomUUID().toString())
-                .build();
-        JWKSet jwkSet = new JWKSet(rsaKey);
-        return new ImmutableJWKSet<>(jwkSet);
-    }
+//    @Bean
+//    public JWKSource<SecurityContext> jwkSource() {
+//        KeyPair keyPair = generateRsaKey();
+//        RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();
+//        RSAPrivateKey privateKey = (RSAPrivateKey) keyPair.getPrivate();
+//        RSAKey rsaKey = new RSAKey.Builder(publicKey)
+//                .privateKey(privateKey)
+//                .keyID(UUID.randomUUID().toString())
+//                .build();
+//        JWKSet jwkSet = new JWKSet(rsaKey);
+//        return new ImmutableJWKSet<>(jwkSet);
+//    }
+//
+//    private static KeyPair generateRsaKey() {
+//        KeyPair keyPair;
+//        try {
+//            KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+//            keyPairGenerator.initialize(2048);
+//            keyPair = keyPairGenerator.generateKeyPair();
+//        }
+//        catch (Exception ex) {
+//            throw new IllegalStateException(ex);
+//        }
+//        return keyPair;
+//    }
 
-    private static KeyPair generateRsaKey() {
-        KeyPair keyPair;
+    @Bean
+    public JWKSource<SecurityContext> jwkSourceWithKeyStore() {
         try {
-            KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
-            keyPairGenerator.initialize(2048);
-            keyPair = keyPairGenerator.generateKeyPair();
+            KeyStore keyStore = KeyStore.getInstance("PKCS12");
+            Resource resource = resourceLoader.getResource(keyStorePath);
+            keyStore.load(resource.getInputStream(), keyStorePassword.toCharArray());
+            // 获取私钥
+            PrivateKey privateKey = (PrivateKey) keyStore.getKey(keyAlias, keyStorePassword.toCharArray());
+            // 获取证书
+            Certificate cert = keyStore.getCertificate(keyAlias);
+            // 从证书中获取公钥
+            PublicKey publicKey = cert.getPublicKey();
+            RSAKey rsaKey = new RSAKey.Builder((RSAPublicKey) publicKey)
+                    .privateKey((RSAPrivateKey) privateKey)
+                    .keyID("co-auth")
+                    .build();
+            JWKSet jwkSet = new JWKSet(rsaKey);
+            return new ImmutableJWKSet<>(jwkSet);
+        } catch (KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException |
+                 UnrecoverableKeyException e) {
+            throw new RuntimeException(e);
         }
-        catch (Exception ex) {
-            throw new IllegalStateException(ex);
-        }
-        return keyPair;
     }
 
     @Bean

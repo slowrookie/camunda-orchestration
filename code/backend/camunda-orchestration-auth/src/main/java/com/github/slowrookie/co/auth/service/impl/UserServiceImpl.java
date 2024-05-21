@@ -5,7 +5,6 @@ import com.github.slowrookie.co.auth.model.User;
 import com.github.slowrookie.co.auth.repository.IUserRepository;
 import com.github.slowrookie.co.auth.service.IUserService;
 import com.github.slowrookie.co.dubbo.api.ICamundaIdentityService;
-import com.github.slowrookie.co.dubbo.dto.CamundaUser;
 import jakarta.annotation.Resource;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.data.domain.Page;
@@ -32,7 +31,7 @@ public class UserServiceImpl implements UserDetailsService, IUserService {
     @Resource
     private PasswordEncoder passwordEncoder;
     @DubboReference
-    private ICamundaIdentityService identityService;
+    private ICamundaIdentityService camundaIdentityService;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -67,12 +66,12 @@ public class UserServiceImpl implements UserDetailsService, IUserService {
         }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         User u = useRepository.save(user);
-        CamundaUser camundaUser = new CamundaUser();
+        org.camunda.bpm.engine.identity.User camundaUser = camundaIdentityService.newUser(u.getId());
         camundaUser.setId(u.getId());
         camundaUser.setFirstName(u.getUsername());
         camundaUser.setPassword(rawPassword);
         camundaUser.setEmail(String.format("%s@email.com", u.getUsername()));
-        identityService.createUser(camundaUser);
+        camundaIdentityService.saveUser(camundaUser);
         return u;
     }
 

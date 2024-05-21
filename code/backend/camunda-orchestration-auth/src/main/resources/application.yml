@@ -4,6 +4,12 @@ server:
 spring:
   application:
     name: CamundaOrchestrationAuthApplication
+  authorization:
+  #  keytool -genkeypair -alias co -keyalg RSA -keysize 2048 -storetype PKCS12 -keystore keystore.p12 -validity 3650
+    jwt:
+      key-store: classpath:keystore.p12
+      key-store-password: password
+      key-alias: co
   security:
     oauth2:
       resourceserver:
@@ -25,6 +31,7 @@ dubbo:
   application:
     logger: slf4j
     name: CamundaOrchestrationApplication
+    serialize-check-status: DISABLE
   registry:
     address: nacos://localhost:8848
   protocol:

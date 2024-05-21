@@ -25,7 +25,6 @@ const useStyles = makeStyles({
   },
   content: {
     flex: '1 1 auto',
-    display: "flex",
     height: "100vh",
     ...shorthands.padding(tokens.spacingHorizontalXS),
     border: `1px solid ${tokens.colorNeutralStroke1}`,
@@ -54,7 +53,7 @@ export const MainLayout = () => {
             <Route path="/workflows" element={<WorkflowPage />} />
             <Route path="/users" element={<UserPage />}/>
             <Route path="/groups" element={<GroupPage />}/>
-            <Route path="*" element={<div>404</div>} />
+            <Route path="*" element={<WorkflowPage />} />
           </Routes>
       </div>
     </div>

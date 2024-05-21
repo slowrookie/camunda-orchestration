@@ -50,11 +50,7 @@ public class GroupController {
             return ResponseEntity.notFound().build();
         }
         Group group = go.get();
-        if (!CollectionUtils.isEmpty(dto.getUsers())) {
-            List<User> users = userService.findAllById(dto.getUsers().stream().map(User::getId).toList());
-            group.setUsers(users);
-        }
-        groupService.save(group);
+        groupService.saveWithUsers(group, dto.getUsers());
         return ResponseEntity.noContent().build();
     }
 

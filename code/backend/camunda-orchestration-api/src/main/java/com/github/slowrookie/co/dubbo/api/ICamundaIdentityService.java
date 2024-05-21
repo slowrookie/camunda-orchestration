@@ -1,18 +1,12 @@
 package com.github.slowrookie.co.dubbo.api;
 
-import com.github.slowrookie.co.dubbo.dto.CamundaGroup;
-import com.github.slowrookie.co.dubbo.dto.CamundaUser;
+import org.camunda.bpm.engine.IdentityService;
 
 /**
  * @author jiaxing.liu
  * @date 2024/5/10
  **/
-public interface ICamundaIdentityService {
+public interface ICamundaIdentityService extends IdentityService {
 
-    void createUser(CamundaUser camundaUser);
-
-    CamundaUser getUser(String userId);
-
-    void createGroup(CamundaGroup camundaGroup);
 
 }

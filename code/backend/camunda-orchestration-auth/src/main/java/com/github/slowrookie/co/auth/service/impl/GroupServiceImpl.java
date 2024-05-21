@@ -6,7 +6,6 @@ import com.github.slowrookie.co.auth.repository.IGroupRepository;
 import com.github.slowrookie.co.auth.repository.IUserRepository;
 import com.github.slowrookie.co.auth.service.IGroupService;
 import com.github.slowrookie.co.dubbo.api.ICamundaIdentityService;
-import com.github.slowrookie.co.dubbo.dto.CamundaGroup;
 import jakarta.annotation.Resource;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.data.domain.Page;
@@ -29,16 +28,23 @@ public class GroupServiceImpl implements IGroupService {
     private ICamundaIdentityService camundaIdentityService;
     @Resource
     private IGroupRepository groupRepository;
+    @Resource
+    private IUserRepository userRepository;
 
 
     @Transactional
     @Override
     public void newGroup(Group group) {
         group = groupRepository.save(group);
-        CamundaGroup camundaGroup = new CamundaGroup();
+        org.camunda.bpm.engine.identity.Group camundaGroup = camundaIdentityService.newGroup(group.getId());
         camundaGroup.setId(group.getId());
         camundaGroup.setName(group.getName());
-        camundaIdentityService.createGroup(camundaGroup);
+        camundaGroup.setType("WORKFLOW");
+        camundaIdentityService.saveGroup(camundaGroup);
+        // membership
+        Group finalGroup = group;
+        group.getUsers().forEach(user -> camundaIdentityService.createMembership(user.getId(), finalGroup.getId()));
+
     }
 
     @Override
@@ -56,4 +62,19 @@ public class GroupServiceImpl implements IGroupService {
         groupRepository.save(group);
     }
 
+    @Transactional
+    @Override
+    public void saveWithUsers(Group group, List<User> users) {
+        // delete membership
+        if (!CollectionUtils.isEmpty(group.getUsers())) {
+            group.getUsers().forEach(user -> camundaIdentityService.deleteMembership(user.getId(), group.getId()));
+        }
+        if (!CollectionUtils.isEmpty(users)) {
+            users = userRepository.findAllById(users.stream().map(User::getId).toList());
+            group.setUsers(users);
+            // create membership
+            users.forEach(user -> camundaIdentityService.createMembership(user.getId(), group.getId()));
+        }
+        groupRepository.save(group);
+    }
 }

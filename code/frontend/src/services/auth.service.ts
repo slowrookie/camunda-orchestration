@@ -19,7 +19,7 @@ export type AuthorizedAccess = {
 }
 
 export type User = {
-  id?: string;
+  id: string;
   username: string;
   password?: string;
 }
@@ -99,6 +99,10 @@ export const createUser = async (u: User): Promise<User> => {
     .then((res) => res.data);
 }
 
+export const getUsersByIds = async (ids: string[]): Promise<User[]> => {
+  return axios.post('/api/auth/user/ids', ids)
+    .then((res) => res.data);
+}
 
 export const groups = async (pageRequest: PageRequest): Promise<Page<User>> => {
   return axios.get(`/api/auth/groups?page=${pageRequest.number}&size=${pageRequest.size}`)

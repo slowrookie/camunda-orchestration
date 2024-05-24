@@ -1,4 +1,4 @@
-import { makeStyles, mergeClasses, tokens } from "@fluentui/react-components";
+import { makeStyles, mergeClasses } from "@fluentui/react-components";
 import { useEffect, useRef } from "react";
 import BpmnModeler from 'camunda-bpmn-js/lib/camunda-platform/Modeler';
 // @ts-ignore
@@ -11,6 +11,7 @@ import i18nPropertiesPanelZhCN from '../../i18n/zh_CN/properties-panel';
 import i18nBpmnJsZhCN from '../../i18n/zh_CN/bpmn-js';
 import i18nExtensionZhCN from '../../i18n/zh_CN/extension';
 import  customPropertiesProvider from "./provider/custom.provider";
+import { SelectUserDiglog } from "./provider/select-user.componet";
 
 // i18n
 const translateModule = {
@@ -102,6 +103,7 @@ export const BpmnDesigner = (props: IBpmnDesigerProps) => {
       <div ref={containerRef} className={styles.modelerPanel}>
       </div>
       <div ref={propertiesPanelRef} className={styles.propertiesPanel} />
+      <SelectUserDiglog />
     </div>
   )
 };

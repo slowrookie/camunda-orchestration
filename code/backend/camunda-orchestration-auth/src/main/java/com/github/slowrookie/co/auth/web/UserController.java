@@ -12,6 +12,8 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 
 @RestController
 public class UserController {
@@ -32,6 +34,11 @@ public class UserController {
         user.setPassword(createUserDto.getPassword());
         user = userService.newUser(user);
         return ResponseEntity.ok(user);
+    }
+
+    @PostMapping("/user/ids")
+    private ResponseEntity<List<User>> queryUsersByIds(@RequestBody List<String> ids) {
+        return ResponseEntity.ok(userService.getUsers(ids));
     }
 
 }

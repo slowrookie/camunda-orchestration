@@ -1,4 +1,5 @@
-import { UserAssignmentEntry } from './user-assignement.entry';
+import { UserTaskAssignmentEntry } from './user-task-assignement.entry';
+import { UserTaskCandidateUserEntry } from './user-task-candidate-users.entry';
 
 class CustomPropertiesProvider {
   constructor(propertiesPanel: any, translate: any) {
@@ -13,8 +14,12 @@ class CustomPropertiesProvider {
           if (group.id === 'CamundaPlatform__UserAssignment') {
              const entries = group.entries.map((entry: any) => {
               if (entry.id == 'assignee') {
-                entry = UserAssignmentEntry({ element });
+                entry = UserTaskAssignmentEntry({ element });
+              } 
+              else if (entry.id == 'candidateUsers') {
+                entry = UserTaskCandidateUserEntry({ element, id: entry.id });
               }
+
               return entry;
             });
             group.entries = entries;

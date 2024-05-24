@@ -41,10 +41,10 @@ const PAGE_SIZE = 100;
 export const UserPage = () => {
   const styles = useStyles();
   const [isOpen, setIsOpen] = useState(false);
-  const [user, setUser] = useState<User>({password: '', username: ''});
+  const [user, setUser] = useState<User>({id: '', password: '', username: ''});
 
   const gridRef = useRef<AgGridReact>(null);
-  const [colDefs, setColDefs] = useState<any>([
+  const [colDefs, _] = useState<any>([
     { field: 'id', headerName: 'ID', flex: 1 },
     { field: 'username', headerName: '用户名', flex: 1 },
   ]);

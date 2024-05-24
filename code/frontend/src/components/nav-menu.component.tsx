@@ -1,7 +1,6 @@
 import {
   Divider,
-  Persona,
-  makeStyles
+  Persona
 } from "@fluentui/react-components";
 import {
   Flowchart20Filled,
@@ -28,9 +27,6 @@ import {
 import { useNavigate } from "react-router-dom";
 import { Me, signOut } from "../services/auth.service";
 
-const useStyles = makeStyles({
-});
-
 const SysSettigns = bundleIcon(PersonSettings20Filled, PersonSettings20Regular);
 const Workflow = bundleIcon(Flowchart20Filled, Flowchart20Regular);
 // const Settings = bundleIcon(Settings20Filled, Settings20Regular);
@@ -42,7 +38,7 @@ export type INavMenuProps = {
 }
 
 export const NavMenu = (props: INavMenuProps) => {
-  const styles = useStyles();
+  
   const navigate = useNavigate();
 
   const handleSignOut = () => {

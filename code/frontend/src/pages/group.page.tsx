@@ -44,7 +44,7 @@ export const GroupPage = () => {
   const [group, setGroup] = useState<Group>({id: '', name: '', users: [] });
 
   const gridRef = useRef<AgGridReact>(null);
-  const [colDefs, setColDefs] = useState<any>([
+  const [colDefs, _] = useState<any>([
     { field: 'id', headerName: 'ID', flex: 1 },
     { field: 'name', headerName: '组名', flex: 1 },
     { field: 'id', headerName: '操作', cellRenderer: (row: any) => {

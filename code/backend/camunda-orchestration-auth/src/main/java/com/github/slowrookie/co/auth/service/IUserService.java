@@ -23,4 +23,6 @@ public interface IUserService {
     User newUser(User user);
 
     List<User> findAllById(List<String> list);
+
+    List<User> getUsers(List<String> ids);
 }

@@ -77,4 +77,9 @@ public class GroupServiceImpl implements IGroupService {
         }
         groupRepository.save(group);
     }
+
+    @Override
+    public List<Group> getGroups(List<String> ids) {
+        return groupRepository.findAllById(ids);
+    }
 }

@@ -12,6 +12,7 @@ import i18nBpmnJsZhCN from '../../i18n/zh_CN/bpmn-js';
 import i18nExtensionZhCN from '../../i18n/zh_CN/extension';
 import  customPropertiesProvider from "./provider/custom.provider";
 import { SelectUserDiglog } from "./provider/select-user.componet";
+import { SelectGroupDiglog } from "./provider/select-group.componet";
 
 // i18n
 const translateModule = {
@@ -104,6 +105,7 @@ export const BpmnDesigner = (props: IBpmnDesigerProps) => {
       </div>
       <div ref={propertiesPanelRef} className={styles.propertiesPanel} />
       <SelectUserDiglog />
+      <SelectGroupDiglog />
     </div>
   )
 };

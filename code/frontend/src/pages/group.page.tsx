@@ -3,7 +3,7 @@ import { Button, DrawerBody, DrawerHeader, DrawerHeaderTitle, Dropdown, Input, L
 import { Add20Regular, Dismiss20Regular, Edit20Filled } from '@fluentui/react-icons';
 import { AgGridReact } from "ag-grid-react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Group, User, createGroup, getUsers, groups } from "../services/auth.service";
+import { Group, User, createGroup, getUsers, getGroups } from "../services/auth.service";
 import { localeTextCn } from "../utils/ag-grid.local";
 
 const useStyles = makeStyles({
@@ -73,7 +73,7 @@ export const GroupPage = () => {
     const dataSource: IDatasource = {
       rowCount: undefined,
       getRows: (params) => {
-        groups({ number: params.startRow / PAGE_SIZE, size: PAGE_SIZE }).then((data) => {
+        getGroups({ number: params.startRow / PAGE_SIZE, size: PAGE_SIZE }).then((data) => {
           const rowsThisPage = data?.content;
           let lastRow = -1;
           if (data && data.totalElements <= params.endRow) {

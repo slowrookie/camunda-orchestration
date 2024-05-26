@@ -84,5 +84,5 @@ public class UserServiceImpl implements UserDetailsService, IUserService {
     public List<User> getUsers(List<String> ids) {
         return useRepository.findAllById(ids);
     }
-    
+
 }

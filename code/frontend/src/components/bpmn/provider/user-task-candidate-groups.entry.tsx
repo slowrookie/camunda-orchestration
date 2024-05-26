@@ -5,11 +5,11 @@ import { useEffect, useState } from '@bpmn-io/properties-panel/preact/hooks';
 // @ts-ignore
 import { useService } from 'bpmn-js-properties-panel';
 // @ts-ignore
-import { getUsersByIds } from '../../../services/auth.service';
-import { SelectUserDiglogEvent, SelectUserDiglogSubject } from './select-user.componet';
+import { getGroupsByIds } from '../../../services/auth.service';
+import { SelectGroupDiglogEvent, SelectGroupDiglogSubject } from './select-group.componet';
 
-export const UserTaskAssignment = (props: any) => {
-  const key = 'assignee';
+const UserTaskCandidateGroups = (props: any) => {
+  const key = 'candidateGroups';
   const { element, id } = props;
 
   const commandStack = useService("commandStack");
@@ -18,27 +18,27 @@ export const UserTaskAssignment = (props: any) => {
   const [ localValue, setLocalValue ] = useState<string>();
 
   const getValue = () => {
-    return getBusinessObject(element).get(`camunda:assignee`);
-  };
+    return getBusinessObject(element).get('camunda:candidateGroups');
+  }
 
   const setValue = (value: any) => {
     commandStack.execute("element.updateModdleProperties", {
       element,
       moddleElement: businessObject,
       properties: {
-        "camunda:assignee": value
+        "camunda:candidateGroups": value
       }
     });
   };
 
   useEffect(() => {
-    const sub = SelectUserDiglogSubject.subscribe((event: SelectUserDiglogEvent) => {
+    const sub = SelectGroupDiglogSubject.subscribe((event: SelectGroupDiglogEvent) => {
       if (key != event.key) {
         return;
       }
       if (event.type === 'set_value') {
-        setLocalValue(event.selectedUsers?.map((u) => u.username).join(',') || '');
-        setValue(event.selectedUsers?.map((u) => u.id).join(','));
+        setLocalValue(event.selectedGroups?.map((u) => u.name).join(',') || '');
+        setValue(event.selectedGroups?.map((u) => u.id).join(','));
       }
     });
     
@@ -46,8 +46,8 @@ export const UserTaskAssignment = (props: any) => {
     const value = getValue();
     if (value) {
       const ids = value.split(',');
-      getUsersByIds(ids).then((users) => {
-        setLocalValue(users.map((u) => u.username).join(','));
+      getGroupsByIds(ids).then((groups) => {
+        setLocalValue(groups.map((u) => u.name).join(','));
       });
     }
 
@@ -56,16 +56,16 @@ export const UserTaskAssignment = (props: any) => {
     }
   }, []);
 
-  const handleChoseUsers = () => {
+  const handleChoseGroups = () => {
     const value = getValue();
-    SelectUserDiglogSubject.next({type: 'open', key, selectedValues: value ? value.split(',') : []});
+    SelectGroupDiglogSubject.next({type: 'open', key, multiple: true, selectedValues: value ? value.split(',') : []});
   }
 
   return (
     <div className="bio-properties-panel-entry">
       <div className="bio-properties-panel-select">
         <label htmlFor={prefixId(id)} className="bio-properties-panel-label">
-          {translate('Assignee')}
+          {translate('Candidate Groups')}
         </label>
         <div className="bio-properties-panel-input" style={{display: 'flex', flexDirection: 'row', padding: 0}}>
           <input
@@ -83,7 +83,7 @@ export const UserTaskAssignment = (props: any) => {
             // onBlur={onBlur}
             value={localValue}
             />
-            <button onClick={handleChoseUsers} style={{border: 0}}>选择</button>
+            <button onClick={handleChoseGroups} style={{border: 0}}>选择</button>
         </div>
       </div>
     </div>
@@ -94,12 +94,12 @@ function prefixId(id: any) {
   return `bio-properties-panel-${id}`;
 }
 
-export const UserTaskAssignmentEntry = (props: any) => {
+export const UserTaskCandidateGroupsEntry = (props: any) => {
   const { element } = props;
   return {
     ...props,
     element,
     isEdited: true,
-    component: UserTaskAssignment,
+    component: UserTaskCandidateGroups,
   }
 }

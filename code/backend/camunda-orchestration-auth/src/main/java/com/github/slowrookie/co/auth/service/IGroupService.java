@@ -25,4 +25,6 @@ public interface IGroupService {
     void save(Group group);
 
     void saveWithUsers(Group group, List<User> users);
+
+    List<Group> getGroups(List<String> ids);
 }

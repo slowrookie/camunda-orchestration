@@ -1,21 +1,21 @@
 import { Avatar, Button, Dialog, DialogActions, DialogBody, DialogContent, DialogSurface, DialogTitle, DialogTrigger, Field, Tag, TagPicker, TagPickerControl, TagPickerGroup, TagPickerList, TagPickerOnOptionSelectData, TagPickerOption, makeStyles } from "@fluentui/react-components";
 import { useEffect, useState } from "react";
 import { Subject } from "rxjs";
-import { User, getUsers } from "../../../services/auth.service";
+import { Group, getGroups } from "../../../services/auth.service";
 
 
 // event type enum
-declare type SelectUserDiglogEventType = 'None' | 'open' | 'close' | 'set_value' | 'get_value';
+declare type SelectGroupDiglogEventType = 'None' | 'open' | 'close' | 'set_value' | 'get_value';
 
-export type SelectUserDiglogEvent = {
-  type: SelectUserDiglogEventType;
+export type SelectGroupDiglogEvent = {
+  type: SelectGroupDiglogEventType;
   key: string;
   multiple?: boolean;
-  selectedUsers?: User[];
+  selectedGroups?: Group[];
   selectedValues?: string[];
 }
 
-export const SelectUserDiglogSubject = new Subject<SelectUserDiglogEvent>();
+export const SelectGroupDiglogSubject = new Subject<SelectGroupDiglogEvent>();
 
 const useStyles = makeStyles({
   body: {
@@ -25,31 +25,33 @@ const useStyles = makeStyles({
   }
 });
 
-export const SelectUserDiglog = () => {
+export const SelectGroupDiglog = () => {
   const styles = useStyles();
 
-  const [users, setUsers] = useState<User[]>([]);
+  const [groups, setGroups] = useState<Group[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
-  const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
-  const [selectedEvent, setSelectedEvent] = useState<SelectUserDiglogEvent>({type: 'None', key: ""});
+  const [selectedGroups, setSelectedGroups] = useState<Group[]>([]);
+  const [selectedEvent, setSelectedEvent] = useState<SelectGroupDiglogEvent>({type: 'None', key: ""});
 
   useEffect(() => {
-    const sub = SelectUserDiglogSubject.subscribe((event: SelectUserDiglogEvent) => {
+    const sub = SelectGroupDiglogSubject.subscribe((event: SelectGroupDiglogEvent) => {
+      console.log(event);
+      
       if (event.type === 'open') {
         setIsOpen(true);
-        getUsers({ number: 0, size: 100 }).then((data) => {
-          setUsers(data.content);
+        getGroups({ number: 0, size: 100 }).then((data) => {
+          setGroups(data.content);
           if (event.selectedValues) {
             setSelectedOptions(event.selectedValues);
-            setSelectedUsers(data.content.filter((u) => event.selectedValues && event.selectedValues.includes(u.id)));
+            setSelectedGroups(data.content.filter((u) => event.selectedValues && event.selectedValues.includes(u.id)));
           }
         });
         setSelectedEvent(event);
       } else if (event.type === 'close') {
         setIsOpen(false);
         setSelectedOptions([]);
-        setSelectedUsers([]);
+        setSelectedGroups([]);
       }
     });
 
@@ -61,14 +63,14 @@ export const SelectUserDiglog = () => {
   const handleOptionSelect = (_: any, data: TagPickerOnOptionSelectData) => {
     let selects = selectedEvent?.multiple ? data.selectedOptions : [data.value];
     setSelectedOptions(selects);
-    setSelectedUsers(users.filter((u) => selects.includes(u.id)));
+    setSelectedGroups(groups.filter((u) => selects.includes(u.id)));
   }
 
   return (
-    <Dialog modalType="non-modal" open={isOpen} onOpenChange={() => { SelectUserDiglogSubject.next({ type: 'close', key: selectedEvent.key }) }}>
+    <Dialog modalType="non-modal" open={isOpen} onOpenChange={() => { SelectGroupDiglogSubject.next({ type: 'close', key: selectedEvent.key }) }}>
       <DialogSurface>
         <DialogBody>
-          <DialogTitle>选择用户</DialogTitle>
+          <DialogTitle>选择组</DialogTitle>
           <DialogContent className={styles.body}>
             <Field>
               <TagPicker
@@ -77,24 +79,24 @@ export const SelectUserDiglog = () => {
               >
                 <TagPickerControl>
                   <TagPickerGroup>
-                    {selectedUsers.map((u) => (
+                    {selectedGroups.map((u) => (
                       <Tag key={u.id} shape="circular"
                         value={u.id}
-                        media={<Avatar shape="square" aria-hidden name={u.username} color="colorful" />}
+                        media={<Avatar shape="square" aria-hidden name={u.name} color="colorful" />}
                       >
-                        {u.username}
+                        {u.name}
                       </Tag>
                     ))}
                   </TagPickerGroup>
                 </TagPickerControl>
                 <TagPickerList>
-                  {users.map((user) => (
+                  {groups.map((group) => (
                     <TagPickerOption
-                      key={user.id}
-                      value={user.id || ''}
-                      media={<Avatar shape="square" aria-hidden name={user.username} color="colorful" />}
+                      key={group.id}
+                      value={group.id || ''}
+                      media={<Avatar shape="square" aria-hidden name={group.name} color="colorful" />}
                     >
-                      {user.username}
+                      {group.name}
                     </TagPickerOption>
                   ))}
                 </TagPickerList>
@@ -104,7 +106,7 @@ export const SelectUserDiglog = () => {
           <DialogActions>
             <DialogTrigger disableButtonEnhancement>
               <Button appearance="primary" 
-                onClick={() => { SelectUserDiglogSubject.next({key: selectedEvent.key, type: 'set_value', selectedUsers: selectedUsers }) }}>确认</Button>
+                onClick={() => { SelectGroupDiglogSubject.next({key: selectedEvent.key, type: 'set_value', selectedGroups: selectedGroups }) }}>确认</Button>
             </DialogTrigger>
           </DialogActions>
         </DialogBody>

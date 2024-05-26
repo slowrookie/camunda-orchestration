@@ -25,7 +25,7 @@ export type User = {
 }
 
 export type Group = {
-  id?: string
+  id: string
   name: string
   users?: User[]
 }
@@ -100,16 +100,21 @@ export const createUser = async (u: User): Promise<User> => {
 }
 
 export const getUsersByIds = async (ids: string[]): Promise<User[]> => {
-  return axios.post('/api/auth/user/ids', ids)
+  return axios.post('/api/auth/users/ids', ids)
     .then((res) => res.data);
 }
 
-export const groups = async (pageRequest: PageRequest): Promise<Page<User>> => {
+export const getGroups = async (pageRequest: PageRequest): Promise<Page<Group>> => {
   return axios.get(`/api/auth/groups?page=${pageRequest.number}&size=${pageRequest.size}`)
     .then((res) => res.data);
 }
 
-export const createGroup = async (u: Group): Promise<User> => {
+export const getGroupsByIds = async (ids: string[]): Promise<Group[]> => {
+  return axios.post(`/api/auth/groups/ids`, ids)
+    .then((res) => res.data);
+}
+
+export const createGroup = async (u: Group): Promise<Group> => {
   return u.id ? axios.post('/api/auth/group', u) : axios.put('/api/auth/group', u)
     .then((res) => res.data);
 }

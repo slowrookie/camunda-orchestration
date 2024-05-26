@@ -54,4 +54,9 @@ public class GroupController {
         return ResponseEntity.noContent().build();
     }
 
+    @PostMapping("/groups/ids")
+    private ResponseEntity<List<Group>> queryGroupsByIds(@RequestBody List<String> ids) {
+        return ResponseEntity.ok(groupService.getGroups(ids));
+    }
+
 }

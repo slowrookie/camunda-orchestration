@@ -8,7 +8,8 @@ import { useService } from 'bpmn-js-properties-panel';
 import { getUsersByIds } from '../../../services/auth.service';
 import { SelectUserDiglogEvent, SelectUserDiglogSubject } from './select-user.componet';
 
-export const UserTaskCandidateUser = (props: any) => {
+const UserTaskCandidateUsers = (props: any) => {
+  const key = 'candidateUsers';
   const { element, id } = props;
 
   const commandStack = useService("commandStack");
@@ -32,9 +33,12 @@ export const UserTaskCandidateUser = (props: any) => {
 
   useEffect(() => {
     const sub = SelectUserDiglogSubject.subscribe((event: SelectUserDiglogEvent) => {
+      if (key != event.key) {
+        return;
+      }
       if (event.type === 'set_value') {
-        setLocalValue(event.setSelectedUsers?.map((u) => u.username).join(',') || '');
-        setValue(event.setSelectedUsers?.map((u) => u.id).join(','));
+        setLocalValue(event.selectedUsers?.map((u) => u.username).join(',') || '');
+        setValue(event.selectedUsers?.map((u) => u.id).join(','));
       }
     });
     
@@ -54,7 +58,7 @@ export const UserTaskCandidateUser = (props: any) => {
 
   const handleChoseUsers = () => {
     const value = getValue();
-    SelectUserDiglogSubject.next({type: 'open', selectedValues: value ? value.split(',') : []});
+    SelectUserDiglogSubject.next({type: 'open', key, multiple: true, selectedValues: value ? value.split(',') : []});
   }
 
   return (
@@ -96,6 +100,6 @@ export const UserTaskCandidateUserEntry = (props: any) => {
     ...props,
     element,
     isEdited: true,
-    component: UserTaskCandidateUser,
+    component: UserTaskCandidateUsers,
   }
 }

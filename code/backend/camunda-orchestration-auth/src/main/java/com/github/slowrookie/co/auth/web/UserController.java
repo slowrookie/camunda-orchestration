@@ -36,7 +36,7 @@ public class UserController {
         return ResponseEntity.ok(user);
     }
 
-    @PostMapping("/user/ids")
+    @PostMapping("/users/ids")
     private ResponseEntity<List<User>> queryUsersByIds(@RequestBody List<String> ids) {
         return ResponseEntity.ok(userService.getUsers(ids));
     }

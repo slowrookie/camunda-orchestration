@@ -42,6 +42,9 @@ public class GroupServiceImpl implements IGroupService {
         camundaGroup.setType("WORKFLOW");
         camundaIdentityService.saveGroup(camundaGroup);
         // membership
+        if (CollectionUtils.isEmpty(group.getUsers())) {
+            return;
+        }
         Group finalGroup = group;
         group.getUsers().forEach(user -> camundaIdentityService.createMembership(user.getId(), finalGroup.getId()));
 

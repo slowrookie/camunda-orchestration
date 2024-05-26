@@ -1,33 +1,34 @@
 import {
   makeStyles,
-  shorthands,
   tokens
 } from "@fluentui/react-components";
+import { useEffect, useState } from "react";
 import { Route, Routes } from "react-router-dom";
 import { NavMenu } from "../components/nav-menu.component";
-import { UserPage } from "./user.page";
-import { GroupPage } from "./group.page";
-import { WorkflowPage } from "./worflow.page";
-import { useEffect, useState } from "react";
 import { Me, me } from "../services/auth.service";
+import { GroupPage } from "./group.page";
+import { UserPage } from "./user.page";
+import { WorkflowPage } from "./worflow.page";
 
 const useStyles = makeStyles({
   root: {
-    overflow: "hidden",
     display: "flex",
+    flexDirection: "row",
     height: "100vh",
   },
   nav: {
     flex: '0 0 auto',
-    overflow: "hidden",
     display: "flex",
     height: "100vh",
   },
-  content: {
+  conatier: {
     flex: '1 1 auto',
     height: "100vh",
-    ...shorthands.padding(tokens.spacingHorizontalXS),
-    border: `1px solid ${tokens.colorNeutralStroke1}`,
+  },
+  content: {
+    height: "100vh",
+    boxSizing: "border-box",
+    padding: tokens.spacingHorizontalXS,
   },
 });
 
@@ -45,16 +46,18 @@ export const MainLayout = () => {
   return (
     <div className={styles.root}>
       <div className={styles.nav}>
-        <NavMenu me={currentUser}/>
+        <NavMenu me={currentUser} />
       </div>
 
-      <div className={styles.content}>
+      <div className={styles.conatier}>
+        <div className={styles.content}>
           <Routes>
             <Route path="/workflows" element={<WorkflowPage />} />
-            <Route path="/users" element={<UserPage />}/>
-            <Route path="/groups" element={<GroupPage />}/>
+            <Route path="/users" element={<UserPage />} />
+            <Route path="/groups" element={<GroupPage />} />
             <Route path="*" element={<WorkflowPage />} />
           </Routes>
+        </div>
       </div>
     </div>
   );

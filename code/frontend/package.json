@@ -13,12 +13,12 @@
     "@ag-grid-community/core": "^31.3.2",
     "@fluentui/react-components": "^9.50.0",
     "@fluentui/react-nav-preview": "^0.1.0",
-    "ag-grid-react": "^31.3.2",
     "axios": "^1.6.8",
     "camunda-bpmn-js": "^4.6.3",
     "preact": "^10.22.0",
     "preact-render-to-string": "^6.5.2",
     "react": "^18.2.0",
+    "react-data-grid": "^7.0.0-beta.44",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.23.1",
     "rxjs": "^7.8.1"

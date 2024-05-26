@@ -1,10 +1,10 @@
-import { GridReadyEvent, IDatasource } from '@ag-grid-community/core';
-import { Button, DrawerBody, DrawerHeader, DrawerHeaderTitle, Dropdown, Input, Label, Option, OptionOnSelectData, OverlayDrawer, Persona, Toolbar, ToolbarButton, makeStyles, shorthands, tokens } from "@fluentui/react-components";
+import { Button, DrawerBody, DrawerHeader, DrawerHeaderTitle, Dropdown, Input, Label, Option, OptionOnSelectData, OverlayDrawer, Persona, Spinner, Toolbar, ToolbarButton, makeStyles, shorthands, tokens } from "@fluentui/react-components";
 import { Add20Regular, Dismiss20Regular, Edit20Filled } from '@fluentui/react-icons';
-import { AgGridReact } from "ag-grid-react";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { Group, User, createGroup, getUsers, getGroups } from "../services/auth.service";
-import { localeTextCn } from "../utils/ag-grid.local";
+import { UIEvent, useCallback, useEffect, useState } from "react";
+import type { Column } from 'react-data-grid';
+import DataGrid from 'react-data-grid';
+import { Page } from '../services/api.service';
+import { Group, User, createGroup, getGroups, getUsers } from "../services/auth.service";
 
 const useStyles = makeStyles({
   page: {
@@ -22,6 +22,14 @@ const useStyles = makeStyles({
     borderTop: `1px solid ${tokens.colorNeutralStroke1}`,
     paddingTop: tokens.spacingHorizontalXS,
     flex: "1 1 auto",
+  },
+  loadMore: {
+    paddingBlock: "8px",
+    paddingInline: "16px",
+    position: "absolute",
+    insetBlockEnd: "8px",
+    insetInlineEnd: "8px",
+    lineHeight: "35px",
   },
   form: {
     display: "flex",
@@ -42,14 +50,33 @@ export const GroupPage = () => {
   const styles = useStyles();
   const [isOpen, setIsOpen] = useState(false);
   const [group, setGroup] = useState<Group>({id: '', name: '', users: [] });
+  const [rows, setRows] = useState<Group[]>([]);
+  const [currentPage, setCurrentPage] = useState<Page<Group>>();
+  const [pageReuqest, setPageRequest] = useState({ number: 0, size: PAGE_SIZE });
+  const [isLoading, setIsLoading] = useState(false);
 
-  const gridRef = useRef<AgGridReact>(null);
-  const [colDefs, _] = useState<any>([
-    { field: 'id', headerName: 'ID', flex: 1 },
-    { field: 'name', headerName: '组名', flex: 1 },
-    { field: 'id', headerName: '操作', cellRenderer: (row: any) => {
-      return <Button icon={<Edit20Filled />} size="small" onClick={() => {
-        setGroup(row.data);
+  function rowKeyGetter(row: Group) {
+    return row.id;
+  }
+
+  useEffect(() => {
+    if (pageReuqest) {
+      setIsLoading(true);
+      getGroups(pageReuqest).then((data) => {
+        pageReuqest.number == 0 ? setRows([...data.content]) : setRows([...rows, ...data.content]);
+        setCurrentPage(data);
+      }).finally(() => {
+        setIsLoading(false);
+      });
+    }
+  }, [pageReuqest]);
+
+  const columns: readonly Column<Group>[] = ([
+    { key: 'id', name: 'ID', resizable: true },
+    { key: 'name', name: '组名', resizable: true },
+    { key: '', name: '操作', renderCell: (data: any) => {
+      return <Button id={`edit-${data.row.id}`} icon={<Edit20Filled />} size="small" onClick={() => {
+        setGroup(data.row);
         setIsOpen(true);
       }} />
     }}
@@ -63,28 +90,17 @@ export const GroupPage = () => {
   }, []);
 
   const handleUserOptionSelect = (_: any, data: OptionOnSelectData) => {
-    const u = users.find(u => u.id === data.optionValue);
-    if (u) {
-      setGroup({ ...group, users: [...(group.users || []), u] });
-    }
+    const us = users.filter(u => data.selectedOptions.includes(u.id));
+    setGroup({ ...group, users: us });
   }
 
-  const onGridReady = useCallback((params: GridReadyEvent) => {
-    const dataSource: IDatasource = {
-      rowCount: undefined,
-      getRows: (params) => {
-        getGroups({ number: params.startRow / PAGE_SIZE, size: PAGE_SIZE }).then((data) => {
-          const rowsThisPage = data?.content;
-          let lastRow = -1;
-          if (data && data.totalElements <= params.endRow) {
-            lastRow = data.totalElements;
-          }
-          params.successCallback(rowsThisPage as any[], lastRow);
-        });
-      },
-    };
-    params.api.setGridOption('datasource', dataSource);
-  }, []);
+  const handleScroll = useCallback((event: UIEvent<HTMLDivElement>) => {
+    const { scrollTop, clientHeight, scrollHeight } = event.currentTarget;
+    let isAtButtom = scrollTop + clientHeight >= scrollHeight;
+    if (isLoading || !isAtButtom || currentPage?.last) return;
+
+    setPageRequest({ number: pageReuqest.number + 1, size: pageReuqest.size });
+  }, [pageReuqest, currentPage, isLoading]);
 
   const groupCreate = () => {
     return (
@@ -140,7 +156,7 @@ export const GroupPage = () => {
               createGroup(group).then(() => {
                 setIsOpen(false);
                 setGroup({ id: '', name: '', users: []});
-                gridRef.current?.api?.purgeInfiniteCache();
+                setPageRequest({ number: 0, size: PAGE_SIZE });
               });
             }}>{group.id ? '编辑': '创建'}</Button>
           </div>
@@ -157,24 +173,17 @@ export const GroupPage = () => {
       </Toolbar>
 
       <div className={styles.dataGrid}>
-        <div
-          className="ag-theme-quartz"
-          style={{ height: "100%", width: "100%" }}
-        >
-          <AgGridReact
-            ref={gridRef}
-            localeText={localeTextCn}
-            columnDefs={colDefs}
-            rowBuffer={0}
-            rowModelType={'infinite'}
-            cacheBlockSize={PAGE_SIZE}
-            cacheOverflowSize={2}
-            maxConcurrentDatasourceRequests={1}
-            infiniteInitialRowCount={1}
-            maxBlocksInCache={100}
-            onGridReady={onGridReady as any}
-          />
-        </div>
+      <DataGrid
+          className="fill-grid rdg-light"
+          style={{height: "100%"}}
+          columns={columns}
+          rows={rows}
+          rowHeight={30}
+          rowKeyGetter={rowKeyGetter}
+          onRowsChange={setRows}
+          onScroll={handleScroll}
+        />
+        {isLoading && <div className={styles.loadMore}><Spinner size="small" /></div>}
 
       </div>
 

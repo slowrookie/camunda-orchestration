@@ -4,6 +4,7 @@ import { UserTaskCandidateUserEntry } from './user-task-candidate-users.entry';
 
 class CustomPropertiesProvider {
   constructor(propertiesPanel: any, translate: any) {
+    translate = translate;
     propertiesPanel.registerProvider(500, this);
   }
 

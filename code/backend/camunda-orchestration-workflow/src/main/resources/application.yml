@@ -1,4 +1,6 @@
 spring:
+  jersey:
+    application-path: /workflow
   # postgresql datasource
   datasource:
     url: jdbc:postgresql://localhost:5432/camunda

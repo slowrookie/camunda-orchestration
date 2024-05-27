@@ -1,6 +1,7 @@
 import { makeStyles, mergeClasses } from "@fluentui/react-components";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useImperativeHandle, forwardRef } from "react";
 import BpmnModeler from 'camunda-bpmn-js/lib/camunda-platform/Modeler';
+import { SaveSVGResult, SaveXMLOptions, SaveXMLResult } from 'bpmn-js/lib/BaseViewer';
 // @ts-ignore
 import { BpmnPropertiesPanelModule, BpmnPropertiesProviderModule } from 'bpmn-js-properties-panel';
 import axios from "axios";
@@ -36,6 +37,11 @@ export type IBpmnDesigerProps = {
   diagramXml?: string;
 }
 
+export interface IBpmnDesigerRef {
+  saveSVG: () => Promise<SaveSVGResult>;
+  saveXML: (options?: SaveXMLOptions) => Promise<SaveXMLResult>;
+}
+
 const useStyles = makeStyles({
   root: {
     padding: 0,
@@ -54,7 +60,7 @@ const useStyles = makeStyles({
   }
 });
 
-export const BpmnDesigner = (props: IBpmnDesigerProps) => {
+export const BpmnDesigner = forwardRef<IBpmnDesigerRef, IBpmnDesigerProps>((props, ref) => {
   const styles = useStyles();
   const containerRef = useRef<any>(null);
   const propertiesPanelRef = useRef<any>(null);
@@ -99,6 +105,22 @@ export const BpmnDesigner = (props: IBpmnDesigerProps) => {
     }
   }, [props]);
 
+  // 暴露组件函数
+  useImperativeHandle(ref, () => ({
+    saveSVG: async (): Promise<SaveSVGResult> => {
+      if (!bpmnModeler.current) {
+        return { svg: '' };
+      }
+      return bpmnModeler.current.saveSVG();
+    },
+    saveXML: async (options?: SaveXMLOptions): Promise<SaveXMLResult> => {
+      if (!bpmnModeler.current) {
+        return { xml: '' };
+      }
+      return bpmnModeler.current.saveXML({...options, format: true });
+    },
+  }), [bpmnModeler.current]);
+
   return (
     <div className={mergeClasses(styles.root, props.className)}>
       <div ref={containerRef} className={styles.modelerPanel}>
@@ -108,4 +130,4 @@ export const BpmnDesigner = (props: IBpmnDesigerProps) => {
       <SelectGroupDiglog />
     </div>
   )
-};
+});

@@ -17,6 +17,11 @@ export default defineConfig({
         target: 'http://localhost:9000',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/auth/, '')
+      },
+      '/api/workflow': {
+        target: 'http://localhost:9090',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, '')
       }
     }
   }

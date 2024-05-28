@@ -9,7 +9,7 @@ import { Group, User, createGroup, getGroups, getUsers } from "../services/auth.
 const useStyles = makeStyles({
   page: {
     width: "100%",
-    height: "100vh",
+    height: "100%",
     display: "flex",
     flexDirection: "column",
     justifyContent: "flex-start",
@@ -49,7 +49,7 @@ const PAGE_SIZE = 100;
 export const GroupPage = () => {
   const styles = useStyles();
   const [isOpen, setIsOpen] = useState(false);
-  const [group, setGroup] = useState<Group>({id: '', name: '', users: [] });
+  const [group, setGroup] = useState<Group>({ id: '', name: '', users: [] });
   const [rows, setRows] = useState<Group[]>([]);
   const [currentPage, setCurrentPage] = useState<Page<Group>>();
   const [pageReuqest, setPageRequest] = useState({ number: 0, size: PAGE_SIZE });
@@ -74,12 +74,14 @@ export const GroupPage = () => {
   const columns: readonly Column<Group>[] = ([
     { key: 'id', name: 'ID', resizable: true },
     { key: 'name', name: '组名', resizable: true },
-    { key: '', name: '操作', renderCell: (data: any) => {
-      return <Button id={`edit-${data.row.id}`} icon={<Edit20Filled />} size="small" onClick={() => {
-        setGroup(data.row);
-        setIsOpen(true);
-      }} />
-    }}
+    {
+      key: '', name: '操作', renderCell: (data: any) => {
+        return <Button id={`edit-${data.row.id}`} icon={<Edit20Filled />} size="small" onClick={() => {
+          setGroup(data.row);
+          setIsOpen(true);
+        }} />
+      }
+    }
   ]);
 
   const [users, setUsers] = useState<User[]>([]);
@@ -112,13 +114,13 @@ export const GroupPage = () => {
       >
         <DrawerHeader>
           <DrawerHeaderTitle action={
-            <Button appearance="subtle" aria-label="Close" size='small' icon={<Dismiss20Regular />} 
-            onClick={() => {
-              setIsOpen(false);
-              setGroup({ id: '', name: '', users: []});
-            }} />
+            <Button appearance="subtle" aria-label="Close" size='small' icon={<Dismiss20Regular />}
+              onClick={() => {
+                setIsOpen(false);
+                setGroup({ id: '', name: '', users: [] });
+              }} />
           }>
-            {group.id ? '编辑': '创建'}组
+            {group.id ? '编辑' : '创建'}组
           </DrawerHeaderTitle>
         </DrawerHeader>
         <DrawerBody>
@@ -130,7 +132,7 @@ export const GroupPage = () => {
           </div>
           <div className={styles.formField}>
             <label id={'users'}>用户</label>
-            <Dropdown aria-labelledby={"用户"} multiselect={true} 
+            <Dropdown aria-labelledby={"用户"} multiselect={true}
               // defaultSelectedOptions={group.users?.map(u => u.id+"")}  
               defaultValue={group.users?.map(u => `${u.username}`).join(",")}
               selectedOptions={group.users?.map(u => `${u.id}`)}
@@ -140,7 +142,7 @@ export const GroupPage = () => {
                 return <Option key={u.id} text={u.username} value={u.id}>
                   <Persona
                     size='small'
-                    avatar={{ color: "colorful"}}
+                    avatar={{ color: "colorful" }}
                     name={u.username}
                     presence={{
                       status: "available",
@@ -155,10 +157,10 @@ export const GroupPage = () => {
             <Button appearance="primary" onClick={() => {
               createGroup(group).then(() => {
                 setIsOpen(false);
-                setGroup({ id: '', name: '', users: []});
+                setGroup({ id: '', name: '', users: [] });
                 setPageRequest({ number: 0, size: PAGE_SIZE });
               });
-            }}>{group.id ? '编辑': '创建'}</Button>
+            }}>{group.id ? '编辑' : '创建'}</Button>
           </div>
         </DrawerBody>
       </OverlayDrawer>
@@ -173,9 +175,9 @@ export const GroupPage = () => {
       </Toolbar>
 
       <div className={styles.dataGrid}>
-      <DataGrid
+        <DataGrid
           className="fill-grid rdg-light"
-          style={{height: "100%"}}
+          style={{ height: "100%" }}
           columns={columns}
           rows={rows}
           rowHeight={30}

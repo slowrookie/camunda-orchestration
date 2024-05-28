@@ -39,3 +39,6 @@ camunda:
     process-engine-name: default
     history-level: full
 
+logging:
+  level:
+    org: debug

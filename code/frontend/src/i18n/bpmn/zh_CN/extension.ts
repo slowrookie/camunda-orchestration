@@ -13,4 +13,5 @@ export default {
     "Candidate Groups": "候选组",
     "Due date": "到期日",
     "Follow up date": "跟进日期",
+    "Name": '名称',
 }

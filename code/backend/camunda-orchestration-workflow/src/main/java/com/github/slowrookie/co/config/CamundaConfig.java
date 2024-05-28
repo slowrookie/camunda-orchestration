@@ -15,6 +15,8 @@ public class CamundaConfig extends AbstractCamundaConfiguration {
         processEngineConfiguration.setUserResourceWhitelistPattern("[a-zA-Z0-9-]+");
         processEngineConfiguration.setGroupResourceWhitelistPattern("[a-zA-Z0-9-]+");
         processEngineConfiguration.setTenantResourceWhitelistPattern("[a-zA-Z0-9-]+");
+        // 是否强制执行历史记录的生存时间，默认为 true 会强制校验流程历史的生存时间
+        processEngineConfiguration.setEnforceHistoryTimeToLive(false);
     }
 
 }

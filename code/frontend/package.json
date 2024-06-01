@@ -12,13 +12,18 @@
   "dependencies": {
     "@fluentui/react-components": "^9.50.0",
     "@fluentui/react-nav-preview": "^0.1.0",
+    "@monaco-editor/react": "^4.6.0",
+    "@rjsf/core": "^5.18.4",
+    "@rjsf/fluentui-rc": "^5.18.4",
+    "@rjsf/utils": "^5.18.4",
+    "@rjsf/validator-ajv8": "^5.18.4",
     "axios": "^1.6.8",
+    "bpmn-js-properties-panel": "^5.17.1",
     "camunda-bpmn-js": "^4.6.3",
     "preact": "^10.22.0",
     "preact-render-to-string": "^6.5.2",
-    "react": "^18.2.0",
     "react-data-grid": "^7.0.0-beta.44",
-    "react-dom": "^18.2.0",
+    "react-resizable-panels": "^2.0.19",
     "react-router-dom": "^6.23.1",
     "rxjs": "^7.8.1"
   },
@@ -32,6 +37,8 @@
     "eslint": "^8.57.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.6",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "typescript": "^5.2.2",
     "vite": "^5.2.0"
   }

@@ -32,3 +32,4 @@ node_modules/
 
 .dtmp
 package-lock.json
+yarn.lock

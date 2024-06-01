@@ -9,6 +9,7 @@ import { Me, me } from "../services/auth.service";
 import { GroupPage } from "./group.page";
 import { UserPage } from "./user.page";
 import { WorkflowPage } from "./worflow.page";
+import { FormPage } from "./form.page";
 
 const useStyles = makeStyles({
   root: {
@@ -55,6 +56,7 @@ export const MainLayout = () => {
             <Route path="/workflows" element={<WorkflowPage />} />
             <Route path="/users" element={<UserPage />} />
             <Route path="/groups" element={<GroupPage />} />
+            <Route path="/forms" element={<FormPage />} />
             <Route path="*" element={<WorkflowPage />} />
           </Routes>
         </div>

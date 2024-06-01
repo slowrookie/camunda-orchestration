@@ -1,4 +1,4 @@
-import { Button, Image, Input, Spinner, makeStyles, shorthands, tokens, typographyStyles } from "@fluentui/react-components";
+import { Button, Field, Image, Input, Spinner, makeStyles, shorthands, tokens, typographyStyles } from "@fluentui/react-components";
 import { LockClosedRegular, PersonRegular } from "@fluentui/react-icons";
 import LoginIllustration from '../assets/login-illustration.svg';
 import { signIn, LoginUser } from "../services/auth.service";
@@ -12,7 +12,11 @@ const useStyles = makeStyles({
     justifyContent: "center",
     alignItems: "center",
     height: "100vh",
-    backgroundColor: tokens.colorNeutralBackground1,
+    // backgroundColor: tokens.colorNeutralBackground1,
+    background: ["#59c173",
+      "-webkit-linear-gradient(to right, #59c173, #a17fe0, #5d26c1)",
+      "linear-gradient(to right, #59c173, #a17fe0, #5d26c1)"
+    ]
   },
   loginContainer: {
     boxShadow: tokens.shadow16,
@@ -21,6 +25,7 @@ const useStyles = makeStyles({
     justifyContent: "space-between",
     alignItems: "center",
     backgroundColor: tokens.colorNeutralBackground3,
+    transform: "translateY(-20%)",
   },
   loginImg: {
     minWidth: "500px",
@@ -63,13 +68,20 @@ export const Login = () => {
   const navigate = useNavigate();
   const [loginUser, setLoginUser] = useState<LoginUser>({ username: "", password: "" });
   const [isLoging, setIsLoging] = useState(false);
+  const [validationMessage, setValidationMessage] = useState<string | undefined>(undefined);
 
   const handleLogin = () => {
+    setValidationMessage(undefined);
     setIsLoging(true);
     signIn(loginUser).then(() => {
-      setIsLoging(false);
       navigate("/dashboard");
-    });
+    })
+      .catch((e) => {
+        setValidationMessage(e.response?.data?.error || "登录失败，请检查用户名和密码");
+      })
+      .finally(() => {
+        setIsLoging(false);
+      });
   }
 
   return (<>
@@ -81,22 +93,22 @@ export const Login = () => {
           <div className={styles.projectSubTitle}>(探索与模实践)</div>
           <div className={styles.loginPanelTitle}>账号登录</div>
           <div className={styles.loginForm}>
-            <div className={styles.field}>
+            <Field className={styles.field}>
               <Input contentBefore={<PersonRegular />} placeholder="用户名" size="large" id="username" value={loginUser.username}
                 onChange={(_, v) => { setLoginUser({ ...loginUser, username: v.value }) }}
               />
-            </div>
-            <div className={styles.field}>
+            </Field>
+            <Field className={styles.field}>
               <Input contentBefore={<LockClosedRegular />} placeholder="密码" type="password" size="large" id="password"
                 value={loginUser.password}
                 onChange={(_, v) => { setLoginUser({ ...loginUser, password: v.value }) }} />
-            </div>
-            <div className={styles.field}>
+            </Field>
+            <Field className={styles.field} validationMessage={validationMessage}>
               <Button appearance="primary" size="large" onClick={handleLogin}
                 disabledFocusable={isLoging || !loginUser.username || !loginUser.password}
                 icon={isLoging ? <Spinner size="tiny" /> : undefined}
               >登录</Button>
-            </div>
+            </Field>
           </div>
         </div>
       </div>

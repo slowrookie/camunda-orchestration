@@ -12,22 +12,6 @@ import { SelectGroupDiglog } from "./provider/select-group.componet";
 import { generateId } from "../../utils/generate-id.util";
 import { translateModule } from '../../i18n/bpmn/translate.provider';
 
-// // i18n
-// const translateModule = {
-//   translate: ['value', (key: any) => {
-//     const trs = (i18nBpmnJsZhCN as any)[key]
-//       || (i18nPropertiesPanelZhCN as any)[key]
-//       || (i18nCamundaProprtiesPanelZhCN as any)[key]
-//       || (i18nBpmnModelerZhCN as any)[key]
-//       || (i18nExtensionZhCN as any)[key]
-//       || key;
-//     // if (trs == key && ["ID"].indexOf(key) === -1) {
-//     //   console.debug('key not found:', key);
-//     // }
-//     return trs;
-//   }]
-// };
-
 export type IBpmnDesigerProps = {
   className?: string;
   url?: string;

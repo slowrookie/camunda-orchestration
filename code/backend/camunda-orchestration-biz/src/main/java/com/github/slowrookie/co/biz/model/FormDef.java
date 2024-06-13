@@ -1,42 +1,61 @@
 package com.github.slowrookie.co.biz.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.AbstractPersistable;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.time.Instant;
+import java.util.List;
 
-/**
- * @author jiaxing.liu
- * @date 2024/5/31
- **/
+@EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "biz_form_def")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class FormDef implements Serializable {
+@EntityListeners(AuditingEntityListener.class)
+public class FormDef extends AbstractPersistableUuid implements Serializable{
 
     @Serial
     private static final long serialVersionUID = 1L;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private String id;
-
-    @Column(nullable = false)
-    private String name;
-
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String key;
+
+    @JsonManagedReference
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "formDef")
+    @Fetch(FetchMode.SUBSELECT)
+    @OrderBy("createdDate DESC")
+    private List<FormDefDetail> formDefDetails;
 
     @Version
     @Column(nullable = false)
-    private Integer version;
+    private Integer rev;
 
-    @Column(nullable = false, columnDefinition = "TEXT")
-    private String schemas;
+    @CreatedDate
+    @Column(nullable = false)
+    private Instant createdDate;
+
+    @CreatedBy
+    @Column(nullable = false)
+    private String createdBy;
+
+    @LastModifiedDate
+    @Column(nullable = false)
+    private Instant lastModifiedDate;
+
+    @LastModifiedBy
+    @Column(nullable = false)
+    private String lastModifiedBy;
 
 }

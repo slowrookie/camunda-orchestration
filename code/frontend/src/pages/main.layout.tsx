@@ -10,6 +10,7 @@ import { GroupPage } from "./group.page";
 import { UserPage } from "./user.page";
 import { WorkflowPage } from "./worflow.page";
 import { FormPage } from "./form.page";
+import { DashboardPage } from "./dashboard.page";
 
 const useStyles = makeStyles({
   root: {
@@ -54,10 +55,10 @@ export const MainLayout = () => {
         <div className={styles.content}>
           <Routes>
             <Route path="/workflows" element={<WorkflowPage />} />
-            <Route path="/users" element={<UserPage />} />
-            <Route path="/groups" element={<GroupPage />} />
+            <Route path="/settings/users" element={<UserPage />} />
+            <Route path="/settings/groups" element={<GroupPage />} />
             <Route path="/forms" element={<FormPage />} />
-            <Route path="*" element={<WorkflowPage />} />
+            <Route path="*" element={<DashboardPage />} />
           </Routes>
         </div>
       </div>

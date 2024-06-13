@@ -22,7 +22,12 @@ export default defineConfig({
         target: 'http://localhost:9090',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, '')
-      }
+      },
+      '/api/biz': {
+        target: 'http://localhost:9001',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/biz/, '')
+      },
     }
   }
 })

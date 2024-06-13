@@ -16,10 +16,8 @@ const useStyles = makeStyles({
     flexDirection: 'row',
   },
   editor: {
-    width: '50%',
   },
   form: {
-    width: '50%',
     padding: tokens.spacingHorizontalS,
   }
 });
@@ -33,12 +31,19 @@ const _defaultSchema: FormDesignerSchema = {
   Schema: {},
   UISchema: {
       "ui:submitButtonOptions": {
+          norender: true,
           submitText: "提交"
       }
   }
 }
 
-export const FormDesigner = () => {
+export type IFormDesignerProps = {
+  schema?: FormDesignerSchema;
+  schemaString?: string;
+  onChange?: (schema: FormDesignerSchema) => void;
+}
+
+export const FormDesigner = (props: IFormDesignerProps) => {
   const styles = useStyles();
   const [editorLoaded, setEditorLoaded] = useState(false);
   const editorRef = useRef<any>();
@@ -46,12 +51,27 @@ export const FormDesigner = () => {
   const [error, setError] = useState<string | undefined>(undefined);
 
   useEffect(() => {
+    if (props.schemaString) {
+      try {
+        const newSchema = JSON.parse(props.schemaString);
+        setSchema(newSchema);
+        setError(undefined);
+      } catch (e: any) {
+        setError(e.message);
+      }
+    }
+    if (props.schema) {
+      setSchema(props.schema);
+    }
+  }, [props.schemaString, props.schema]);
+
+  useEffect(() => {
     if (editorRef.current) {
       setTimeout(() => {
         const editor = editorRef.current;
         const action = editor.getAction('editor.action.formatDocument');
         action.run();
-      }, 1000);
+      }, 200);
     }
   }, [editorLoaded]);
 
@@ -69,6 +89,9 @@ export const FormDesigner = () => {
       const newSchema = JSON.parse(value);
       setSchema(newSchema);
       setError(undefined);
+      if (props.onChange) {
+        props.onChange(newSchema);
+      }
     } catch (e: any) {
       console.error(e);
       setError(e.message);
@@ -79,7 +102,7 @@ export const FormDesigner = () => {
     return (
       <MessageBar key={error} intent="error">
         <MessageBarBody>
-          <MessageBarTitle>JSON格式错误</MessageBarTitle>
+          <MessageBarTitle>错误</MessageBarTitle>
           {error}
         </MessageBarBody>
       </MessageBar>
@@ -104,7 +127,7 @@ export const FormDesigner = () => {
               scrollbar: {
                 verticalScrollbarSize: 5,
                 horizontalScrollbarSize: 5,
-              }
+              },
             }}
           />
         </Panel>

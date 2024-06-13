@@ -14,6 +14,7 @@ export type FormDefDetail = {
   key: string;
   schemas: string;
   enable: boolean;
+  version?: string;
   formDefId?: string;
 }
 

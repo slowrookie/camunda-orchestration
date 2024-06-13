@@ -44,10 +44,19 @@ export type IFormDesignerProps = {
 }
 
 export const FormDesigner = (props: IFormDesignerProps) => {
+  let defaultSchema = props.schema || {..._defaultSchema};
+  if (props.schemaString) {
+    try {
+      defaultSchema = JSON.parse(props.schemaString);
+    } catch (e: any) {
+      defaultSchema = _defaultSchema;
+    }
+  }
+
   const styles = useStyles();
   const [editorLoaded, setEditorLoaded] = useState(false);
   const editorRef = useRef<any>();
-  const [schema, setSchema] = useState<FormDesignerSchema>({ ..._defaultSchema });
+  const [schema, setSchema] = useState<FormDesignerSchema>(defaultSchema);
   const [error, setError] = useState<string | undefined>(undefined);
 
   useEffect(() => {
@@ -93,7 +102,6 @@ export const FormDesigner = (props: IFormDesignerProps) => {
         props.onChange(newSchema);
       }
     } catch (e: any) {
-      console.error(e);
       setError(e.message);
     }
   }
@@ -114,6 +122,7 @@ export const FormDesigner = (props: IFormDesignerProps) => {
       <PanelGroup direction="horizontal">
         <Panel defaultSize={30} minSize={30} maxSize={50}>
           <Editor
+            value={JSON.stringify(schema, null, 2)}
             className={styles.editor}
             height="100%"
             defaultLanguage="json"

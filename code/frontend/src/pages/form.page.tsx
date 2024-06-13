@@ -1,16 +1,15 @@
 import {
-  Button,
   DrawerBody, DrawerFooter, DrawerHeader, DrawerHeaderNavigation,
-  DrawerHeaderTitle, Field, Input, Link, Menu,
-  MenuTrigger, OverlayDrawer, PresenceBadge, Spinner,
+  DrawerHeaderTitle, Dropdown, Field, Input, Link, Menu,
+  MenuTrigger, Option, OptionOnSelectData, OverlayDrawer, PresenceBadge, SelectionEvents, Spinner,
   Subtitle2,
   Toast,
   ToastBody, ToastTitle, Toaster, Toolbar, ToolbarButton, ToolbarDivider,
   makeStyles, shorthands, tokens, useId, useToastController
 } from '@fluentui/react-components';
-import { Add20Regular, ArrowExport24Filled, Dismiss20Regular, Dismiss24Regular, Rocket24Filled, Rocket24Regular, ArrowDown20Filled, ArrowRight20Filled, bundleIcon } from '@fluentui/react-icons';
+import { Add20Regular, ArrowExport24Filled, Dismiss20Regular, Dismiss24Regular, Rocket24Filled, Rocket24Regular, bundleIcon } from '@fluentui/react-icons';
 import { MouseEvent, UIEvent, useCallback, useEffect, useMemo, useState } from 'react';
-import type { Column, RenderCellProps } from 'react-data-grid';
+import type { Column } from 'react-data-grid';
 import DataGrid from 'react-data-grid';
 import { FormDesigner } from '../components/form/form-designer.component';
 import { Page } from '../services/api.service';
@@ -54,6 +53,7 @@ const useStyles = makeStyles({
   },
   formDesignerToolbar: {
     // justifyContent: 'space-between',
+    gap: tokens.spacingHorizontalS,
   },
   formDesignerHead: {
     padding: tokens.spacingVerticalM,
@@ -86,6 +86,7 @@ export const FormPage = () => {
 
   // grid data
   const [selectedFormDefDetail, setSelectedFormDefDetail] = useState<FormDefDetail>({ id: '', key: '', name: '', schemas: '', enable: true });
+  const [selectedFormDefDetails, setSelectedFormDefDetails] = useState<FormDefDetail[]>([]);
   const [pageReuqest, setPageRequest] = useState({ number: 0, size: PAGE_SIZE });
   const [currentPage, setCurrentPage] = useState<Page<FormDef>>();
   const [isLoading, setIsLoading] = useState(false);
@@ -167,9 +168,17 @@ export const FormPage = () => {
   }
 
   const handleEdit = (row: FormDef) => {
-    setSelectedFormDefDetail({...row.formDefDetails[0], formDefId: row.id});
+    const selected = {...row.formDefDetails[0], formDefId: row.id};
+    setSelectedFormDefDetail(selected);
+    setSelectedFormDefDetails(row.formDefDetails);
     setIsOpen(true);
   };
+
+  const handleChangeVersion = (_: SelectionEvents, data: OptionOnSelectData) => {
+    let selected = selectedFormDefDetails.find((d) => d.id == data.optionValue);
+    selected = {...selectedFormDefDetail, ...selected}
+    selected && setSelectedFormDefDetail(selected);
+  }
 
   const formDeisgnerDrawer = useMemo(() => {
     return (<>
@@ -197,6 +206,16 @@ export const FormPage = () => {
                   onChange={(_, v) => setSelectedFormDefDetail({ ...selectedFormDefDetail, name: v.value })} />
               </Field>
 
+              <Field>
+                <Dropdown placeholder="版本" value={selectedFormDefDetail.version} selectedOptions={[selectedFormDefDetail.id]} onOptionSelect={handleChangeVersion}>
+                  {selectedFormDefDetails && selectedFormDefDetails.map((option) => (
+                    <Option key={option.id} value={option.id} text={option.version || ''}>
+                      {option.version}
+                    </Option>
+                  ))}
+                </Dropdown>
+              </Field>
+
               <div style={{ flex: '1' }}></div>
               <ToolbarDivider />
               <Menu>
@@ -210,8 +229,6 @@ export const FormPage = () => {
         </DrawerHeader>
         <DrawerBody className={styles.formDesignerBody}>
           <FormDesigner schemaString={selectedFormDefDetail.schemas} onChange={(schema) => {
-            console.log(schema);
-
             setSelectedFormDefDetail({ ...selectedFormDefDetail, schemas: JSON.stringify(schema) });
           }} />
         </DrawerBody>
@@ -220,12 +237,12 @@ export const FormPage = () => {
             <ToolbarButton appearance='primary' icon={<>{deploying ? <Spinner size='tiny' /> : <DeployIcon />}</>}
               disabled={deploying}
               onClick={handleSave}
-            >{selectedFormDefDetail.id ? '编辑' : '创建'}</ToolbarButton>
+            >{selectedFormDefDetail.id ? '修订' : '创建'}</ToolbarButton>
           </Toolbar>
         </DrawerFooter>
       </OverlayDrawer>
     </>)
-  }, [selectedFormDefDetail, isOpen, deploying]);
+  }, [selectedFormDefDetail, selectedFormDefDetails, isOpen, deploying]);
 
   return (
     <div className={styles.root}>

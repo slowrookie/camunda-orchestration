@@ -1,4 +1,4 @@
-import { Button, DrawerBody, DrawerHeader, DrawerHeaderTitle, Dropdown, Input, Label, Option, OptionOnSelectData, OverlayDrawer, Persona, Spinner, Toolbar, ToolbarButton, makeStyles, shorthands, tokens } from "@fluentui/react-components";
+import { Button, DrawerBody, DrawerHeader, DrawerHeaderTitle, Dropdown, Input, Label, Option, OptionOnSelectData, OverlayDrawer, Persona, Spinner, Toolbar, ToolbarButton, Tooltip, makeStyles, shorthands, tokens } from "@fluentui/react-components";
 import { Add20Regular, Dismiss20Regular, Edit20Filled } from '@fluentui/react-icons';
 import { UIEvent, useCallback, useEffect, useState } from "react";
 import type { Column } from 'react-data-grid';
@@ -76,10 +76,12 @@ export const GroupPage = () => {
     { key: 'name', name: '组名', resizable: true },
     {
       key: '', name: '操作', renderCell: (data: any) => {
-        return <Button id={`edit-${data.row.id}`} icon={<Edit20Filled />} size="small" onClick={() => {
-          setGroup(data.row);
-          setIsOpen(true);
-        }} />
+        return <Tooltip content="编辑" relationship="description">
+          <Button appearance="subtle" id={`edit-${data.row.id}`} icon={<Edit20Filled />} size="small" onClick={() => {
+            setGroup(data.row);
+            setIsOpen(true);
+          }} />
+        </Tooltip>
       }
     }
   ]);
@@ -170,7 +172,9 @@ export const GroupPage = () => {
   return (<>
     <div className={styles.page}>
       <Toolbar size="small" className={styles.toolbar}>
-        <ToolbarButton appearance="primary" icon={isOpen ? <Dismiss20Regular /> : <Add20Regular />} onClick={() => { setIsOpen(!isOpen) }} />
+      <Tooltip content="创建" relationship="description">
+        <ToolbarButton appearance="subtle" icon={isOpen ? <Dismiss20Regular /> : <Add20Regular />} onClick={() => { setIsOpen(!isOpen) }} />
+      </Tooltip>
         {groupCreate()}
       </Toolbar>
 

@@ -23,6 +23,10 @@ export const getFormDefs = async (pageRequest: PageRequest): Promise<Page<FormDe
     .then((res) => res.data);
 }
 
+export const getFormDefDetailLatest = async (): Promise<FormDefDetail[]> => {
+  return axios.get(`/api/biz/form-def/detail/latest`)
+    .then((res) => res.data);
+}
 
 export const createOrModifyFormDef = async (u: FormDefDetail): Promise<FormDefDetail> => {
   return axios.put('/api/biz/form-def', u)

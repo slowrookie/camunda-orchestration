@@ -14,9 +14,44 @@ export const deploymentCreate = async (diagram: string): Promise<any> => {
     .then((res) => res.data);
 }
 
-export const processDefinitionStatistics = () : Promise<any> => {
+export const processDefinitionStatistics = (): Promise<any> => {
   return axios.get('/api/workflow/process-definition/statistics')
     .then((res) => res.data);
+}
+
+export const processDefinitionStatisticsGrouped = (): Promise<any> => {
+  return processDefinitionStatistics()
+    .then((data) => {
+      let rows = new Array<any>();
+      data.forEach((item: any) => {
+        let definition: any = item.definition;
+        let row = rows.find((r) => r.key === definition.key);
+        if (!row) {
+          row = {
+            id: definition.id,
+            key: definition.key,
+            name: definition.name,
+            version: definition.version,
+            versionTag: definition.versionTag,
+            suspended: definition.suspended,
+            incidents: item.incidents,
+            instances: item.instances,
+            definitions: [definition],
+          };
+          rows.push(row);
+        } else {
+          row.id = definition.id;
+          row.name = definition.name;
+          row.version = definition.version;
+          row.versionTag = definition.versionTag;
+          row.suspended = definition.suspended;
+          row.incidents = Number(row.incidents) + Number(item.incidents.length);
+          row.instances = Number(row.instances) + Number(item.instances);
+          row.definitions.push(definition);
+        }
+      });
+      return rows;
+    });
 }
 
 export const processDefinitionXmlById = (id: string): Promise<any> => {

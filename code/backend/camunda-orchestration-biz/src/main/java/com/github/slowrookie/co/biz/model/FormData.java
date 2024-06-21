@@ -1,6 +1,5 @@
 package com.github.slowrookie.co.biz.model;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -17,32 +16,32 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.List;
+import java.util.UUID;
 
 @EqualsAndHashCode(callSuper = true)
 @Entity
-@Table(name = "biz_form_def")
+@Table(name = "biz_form_data")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
-public class FormDef extends AbstractPersistableUuid implements Serializable{
+public class FormData extends AbstractPersistableUuid implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String key;
 
-    @JsonManagedReference
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "formDef")
-    @Fetch(FetchMode.SUBSELECT)
-    @OrderBy("createdDate DESC")
-    private List<FormDefDetail> formDefDetails;
+    @Column(nullable = false, columnDefinition = "TEXT")
+    private String value;
 
-    @Version
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "form_def_detail_id", nullable = false)
+    private FormDefDetail formDefDetail;
+
     @Column(nullable = false)
-    private Integer rev;
+    private String businessId;
 
     @CreatedDate
     @Column(nullable = false)

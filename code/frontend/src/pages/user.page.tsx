@@ -1,4 +1,4 @@
-import { Button, DrawerBody, DrawerHeader, DrawerHeaderTitle, Input, Label, OverlayDrawer, Spinner, Toolbar, ToolbarButton, makeStyles, shorthands, tokens } from "@fluentui/react-components";
+import { Button, DrawerBody, DrawerHeader, DrawerHeaderTitle, Input, Label, OverlayDrawer, Spinner, Toolbar, ToolbarButton, Tooltip, makeStyles, shorthands, tokens } from "@fluentui/react-components";
 import { Add20Regular, Dismiss20Regular } from '@fluentui/react-icons';
 import { UIEvent, useCallback, useEffect, useState } from "react";
 import type { Column } from 'react-data-grid';
@@ -129,7 +129,9 @@ export const UserPage = () => {
   return (<>
     <div className={styles.page}>
       <Toolbar size="small" className={styles.toolbar}>
-        <ToolbarButton appearance="primary" icon={isOpen ? <Dismiss20Regular /> : <Add20Regular />} onClick={() => { setIsOpen(!isOpen) }} />
+        <Tooltip content="创建" relationship="description">
+          <ToolbarButton appearance="subtle" icon={isOpen ? <Dismiss20Regular /> : <Add20Regular />} onClick={() => { setIsOpen(!isOpen) }} />
+        </Tooltip>
         {userCreate()}
       </Toolbar>
 

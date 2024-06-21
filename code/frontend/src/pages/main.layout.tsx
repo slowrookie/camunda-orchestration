@@ -11,6 +11,8 @@ import { UserPage } from "./user.page";
 import { WorkflowPage } from "./worflow.page";
 import { FormPage } from "./form.page";
 import { DashboardPage } from "./dashboard.page";
+import { WorkflowApprovalPage } from "./workflow-approval.page";
+import { MeProvider } from "../context/MeContexnt";
 
 const useStyles = makeStyles({
   root: {
@@ -37,7 +39,7 @@ const useStyles = makeStyles({
 
 export const MainLayout = () => {
   const styles = useStyles();
-  const [currentUser, setCurrentUser] = useState<Me>();
+  const [currentUser, setCurrentUser] = useState<Me>({id: "", username: ""});
 
   useEffect(() => {
     me().then((data: Me) => {
@@ -46,22 +48,25 @@ export const MainLayout = () => {
   }, []);
 
   return (
-    <div className={styles.root}>
-      <div className={styles.nav}>
-        <NavMenu me={currentUser} />
-      </div>
+    <MeProvider value={currentUser}>
+      <div className={styles.root}>
+        <div className={styles.nav}>
+          <NavMenu me={currentUser} />
+        </div>
 
-      <div className={styles.conatier}>
-        <div className={styles.content}>
-          <Routes>
-            <Route path="/workflows" element={<WorkflowPage />} />
-            <Route path="/settings/users" element={<UserPage />} />
-            <Route path="/settings/groups" element={<GroupPage />} />
-            <Route path="/forms" element={<FormPage />} />
-            <Route path="*" element={<DashboardPage />} />
-          </Routes>
+        <div className={styles.conatier}>
+          <div className={styles.content}>
+            <Routes>
+              <Route path="/workflows" element={<WorkflowPage />} />
+              <Route path="/workflow/approval" element={<WorkflowApprovalPage />} />
+              <Route path="/settings/users" element={<UserPage />} />
+              <Route path="/settings/groups" element={<GroupPage />} />
+              <Route path="/forms" element={<FormPage />} />
+              <Route path="*" element={<DashboardPage />} />
+            </Routes>
+          </div>
         </div>
       </div>
-    </div>
+    </MeProvider>
   );
 }

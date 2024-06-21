@@ -5,6 +5,7 @@ import {
   Subtitle2,
   Toast,
   ToastBody, ToastTitle, Toaster, Toolbar, ToolbarButton, ToolbarDivider,
+  Tooltip,
   makeStyles, shorthands, tokens, useId, useToastController
 } from '@fluentui/react-components';
 import { Add20Regular, ArrowExport24Filled, Dismiss20Regular, Dismiss24Regular, Rocket24Filled, Rocket24Regular, bundleIcon } from '@fluentui/react-icons';
@@ -248,7 +249,9 @@ export const FormPage = () => {
     <div className={styles.root}>
       <Toaster toasterId={toasterId} />
       <Toolbar size="small" className={styles.toolbar}>
-        <ToolbarButton appearance="primary" icon={isOpen ? <Dismiss20Regular /> : <Add20Regular />} onClick={handleCreate} />
+        <Tooltip content="创建" relationship="description">
+          <ToolbarButton appearance="subtle" icon={isOpen ? <Dismiss20Regular /> : <Add20Regular />} onClick={handleCreate} />
+        </Tooltip>
         {formDeisgnerDrawer}
       </Toolbar>
 

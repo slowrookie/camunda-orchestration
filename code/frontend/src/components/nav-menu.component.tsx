@@ -46,19 +46,19 @@ const NavMenuData = [
     icon: BusinessIcon,
     children: [
       {
-        id: "/dashboard/worflow/1",
-        name: "常规审批",
+        id: "/dashboard/workflow/approval",
+        name: "流程审批",
       },
       {
-        id: "/dashboard/worflow/2",
+        id: "/dashboard/workflow/2",
         name: "功能编排",
       },
       {
-        id: "/dashboard/worflow/3",
+        id: "/dashboard/workflow/3",
         name: "版本演进",
       },
       {
-        id: "/dashboard/worflow/4",
+        id: "/dashboard/workflow/4",
         name: "建模概念",
       }
     ]

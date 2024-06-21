@@ -28,6 +28,11 @@ public class FromDefController {
         return formDefService.findAll(PageRequest.of(page, size));
     }
 
+    @GetMapping("/form-def/detail/latest")
+    private ResponseEntity<Iterable<FormDefDetail>> formDefDetailLatest() {
+        return ResponseEntity.ok(formDefService.findFormDefDetailLatest());
+    }
+
     @PutMapping("/form-def")
     private ResponseEntity<FormDefDetail> modify(@RequestBody @Valid FormDefDetailCreateDto dto) {
         FormDef formDef = new FormDef();

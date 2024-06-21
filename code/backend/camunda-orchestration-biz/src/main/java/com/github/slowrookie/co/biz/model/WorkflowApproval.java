@@ -1,13 +1,10 @@
 package com.github.slowrookie.co.biz.model;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -17,32 +14,30 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
 @Entity
-@Table(name = "biz_form_def")
+@Table(name = "biz_workflow_approval")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
-public class FormDef extends AbstractPersistableUuid implements Serializable{
+public class WorkflowApproval extends AbstractPersistableUuid implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
-    @Column(nullable = false, unique = true)
-    private String key;
+    @Column
+    private String title;
 
-    @JsonManagedReference
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "formDef")
-    @Fetch(FetchMode.SUBSELECT)
-    @OrderBy("createdDate DESC")
-    private List<FormDefDetail> formDefDetails;
+    @Column
+    private String processDefinitionId;
 
-    @Version
-    @Column(nullable = false)
-    private Integer rev;
+    @Column
+    private String latestProcessInstanceNode;
+
+    @Column
+    private String processInstanceId;
 
     @CreatedDate
     @Column(nullable = false)

@@ -11,10 +11,7 @@ import org.camunda.bpm.engine.impl.identity.Authentication;
 import java.util.List;
 import java.util.Map;
 
-/**
- * @author jiaxing.liu
- * @date 2024/5/10
- **/
+
 @DubboService
 public class CamundaIdentityServiceImpl implements ICamundaIdentityService {
 

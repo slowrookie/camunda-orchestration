@@ -1,8 +1,9 @@
 import {
   DrawerBody, DrawerFooter, DrawerHeader, DrawerHeaderNavigation,
-  DrawerHeaderTitle, Link, Menu, MenuItem, MenuList, MenuPopover,
-  MenuTrigger, OverlayDrawer, PresenceBadge, Spinner, Toast,
+  DrawerHeaderTitle, Dropdown, Field, Link, Menu, MenuItem, MenuList, MenuPopover,
+  MenuTrigger, Option, OptionOnSelectData, OverlayDrawer, PresenceBadge, SelectionEvents, Spinner, Toast,
   ToastBody, ToastTitle, Toaster, Toolbar, ToolbarButton, ToolbarDivider,
+  Tooltip,
   makeStyles, tokens, useId, useToastController
 } from '@fluentui/react-components';
 import { Add20Regular, ArrowExport24Filled, Dismiss20Regular, Dismiss24Regular, Rocket24Filled, Rocket24Regular, bundleIcon } from '@fluentui/react-icons';
@@ -11,7 +12,7 @@ import { MouseEvent, useEffect, useMemo, useState } from 'react';
 import type { Column } from 'react-data-grid';
 import DataGrid from 'react-data-grid';
 import { BpmnDesigner, IBpmnDesigerRef, TEMPLATE_EMPTY } from '../components/bpmn/bpmn-designer.component';
-import { deploymentCreate, processDefinitionStatistics, processDefinitionXmlById } from '../services/workflow.service';
+import { deploymentCreate, processDefinitionStatisticsGrouped, processDefinitionXmlById } from '../services/workflow.service';
 
 const DeployIcon = bundleIcon(Rocket24Filled, Rocket24Regular);
 
@@ -28,7 +29,7 @@ const useStyles = makeStyles({
     transitionDuration: '0s',
   },
   toolbar: {
-    // padding: tokens.spacingHorizontalXS,
+
   },
   dataGrid: {
     borderTop: `1px solid ${tokens.colorNeutralStroke1}`,
@@ -49,7 +50,7 @@ const useStyles = makeStyles({
     lineHeight: "35px",
   },
   bpmnDesignerToolbar: {
-    // justifyContent: 'space-between',
+    gap: tokens.spacingHorizontalS,
   },
   bpmnDesignerHead: {
     padding: tokens.spacingVerticalM,
@@ -84,7 +85,10 @@ export const WorkflowPage = () => {
   const toasterId = useId("bpmnDesignerToaster");
   const { dispatchToast } = useToastController(toasterId);
   const [diagramXml, setDiagramXml] = useState<string>('');
+  const [setlectedRow, setSelectedRow] = useState<any>({});
+  const [selectedProcessDefinition, setSelectedProcessDefinition] = useState<any>({ version: "" });
 
+  // export xml
   let handleDownloadXml = (event: MouseEvent) => {
     event.preventDefault();
     designerRef.current?.saveXML().then((result: any) => {
@@ -95,6 +99,7 @@ export const WorkflowPage = () => {
     });
   }
 
+  // // export svg
   let handleDownloadSvg = (event: MouseEvent) => {
     event.preventDefault();
     designerRef.current?.saveSVG().then((result: any) => {
@@ -105,6 +110,7 @@ export const WorkflowPage = () => {
     });
   }
 
+  // deploy
   let handleDeploy = (event: MouseEvent) => {
     event.preventDefault();
     setDeploying(true);
@@ -156,53 +162,37 @@ export const WorkflowPage = () => {
     { key: 'name', name: '流程名称', resizable: true },
     { key: 'incidents', name: '事件', width: 80, resizable: true },
     { key: 'instances', name: '运行实例', width: 80, resizable: true },
-    { key: 'version', name: '版本', width: 50, resizable: true },
+    {
+      key: 'version', name: '版本', width: 50, resizable: true, renderCell: (data: any) => {
+        return <Link onClick={() => handleEdit(data.row)}>{data.row.version}</Link>
+      }
+    },
     { key: 'versionTag', name: '版本标签', width: 200, resizable: true },
     {
-      key: 'suspended', name: '状态', width: 50,  cellClass: styles.dataGridCellAlignCenter,
+      key: 'suspended', name: '状态', width: 50, cellClass: styles.dataGridCellAlignCenter,
       renderCell: (data: any) => {
-        return <PresenceBadge size='large' style={{padding: 5}} status={data.row.suspended ? 'do-not-disturb' : 'available'} />
+        return <PresenceBadge size='large' style={{ padding: 5 }} status={data.row.suspended ? 'do-not-disturb' : 'available'} />
       }
     },
   ]);
 
   const handleEdit = (row: any) => {
-    processDefinitionXmlById(row.id)
+    setSelectedRow(row);
+    setSelectedProcessDefinition(row.definitions[row.definitions.length - 1]);
+    changeVersion(row.id);
+  };
+
+  const changeVersion = (id: string) => {
+    processDefinitionXmlById(id)
       .then((data) => {
         setIsOpen(true);
         setDiagramXml(data.bpmn20Xml);
       })
-  };
+  }
 
   const loadData = () => {
     setIsLoading(true);
-    processDefinitionStatistics().then((data) => {
-      let rows = new Array<any>();
-      data.forEach((item: any) => {
-        let definition: any = item.definition;
-        let row = rows.find((r) => r.key === definition.key);
-        if (!row) {
-          row = {
-            id: definition.id,
-            key: definition.key,
-            name: definition.name,
-            version: definition.version,
-            versionTag: definition.versionTag,
-            suspended: definition.suspended,
-            incidents: item.incidents,
-            instances: item.instances,
-          };
-          rows.push(row);
-        } else {
-          row.id = definition.id,
-          row.name = definition.name;
-          row.version = definition.version,
-          row.versionTag = definition.versionTag,
-          row.suspended = definition.suspended,
-          row.incidents = Number(row.incidents) + Number(item.incidents.length);
-          row.instances = Number(row.instances) + Number(item.instances);
-        }
-      });
+    processDefinitionStatisticsGrouped().then((rows) => {
       setRows(rows);
     }).finally(() => {
       setIsLoading(false);
@@ -217,7 +207,9 @@ export const WorkflowPage = () => {
     <div className={styles.root}>
       <Toaster toasterId={toasterId} />
       <Toolbar size="small" className={styles.toolbar}>
-        <ToolbarButton appearance="primary" icon={isOpen ? <Dismiss20Regular /> : <Add20Regular />} onClick={handleCreate} />
+        <Tooltip content="创建" relationship="description">
+          <ToolbarButton appearance="subtle" icon={isOpen ? <Dismiss20Regular /> : <Add20Regular />} onClick={handleCreate} />
+        </Tooltip>
         <OverlayDrawer
           className={styles.drawer}
           modalType="non-modal"
@@ -230,6 +222,22 @@ export const WorkflowPage = () => {
             <DrawerHeaderNavigation>
               <Toolbar className={styles.bpmnDesignerToolbar}>
                 <DrawerHeaderTitle>流程设计</DrawerHeaderTitle>
+
+                <Field>
+                  <Dropdown placeholder="版本" value={selectedProcessDefinition.version} selectedOptions={[selectedProcessDefinition.id]} onOptionSelect={(_: SelectionEvents, data: OptionOnSelectData) => {
+                    let selected = setlectedRow.definitions.find((d: any) => d.id == data.optionValue);
+                    setSelectedProcessDefinition(selected);
+                    console.log(selected);
+                    changeVersion(selected.id);
+                  }}>
+                    {setlectedRow.definitions && setlectedRow.definitions.map((option: any) => (
+                      <Option key={option.id} value={option.id} text={option.version || ''}>
+                        {option.version}
+                      </Option>
+                    ))}
+                  </Dropdown>
+                </Field>
+
                 <div style={{ flex: '1' }}></div>
                 <ToolbarDivider />
                 <Menu>

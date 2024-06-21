@@ -12,9 +12,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
-public class IFormDefServiceImpl implements IFormDefService {
+public class FormDefServiceImpl implements IFormDefService {
 
     @Resource
     private IFormDefRepository formDefRepository;
@@ -50,5 +52,11 @@ public class IFormDefServiceImpl implements IFormDefService {
     @Override
     public FormDefDetail saveFormDefDetail(FormDefDetail formDef) {
         return formDefDetailRepository.save(formDef);
+    }
+
+    @Override
+    public Iterable<FormDefDetail> findFormDefDetailLatest() {
+        List<FormDef> formDefList = formDefRepository.findAll();
+        return formDefList.stream().map(f -> f.getFormDefDetails().get(0)).collect(Collectors.toList());
     }
 }

@@ -25,7 +25,7 @@ dubbo:
     security: false
   protocol:
     name: tri
-    port: 50051
+    port: 0
 server:
   port: 9090
 

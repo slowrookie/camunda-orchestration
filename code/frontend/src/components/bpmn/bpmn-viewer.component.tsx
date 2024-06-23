@@ -1,15 +1,17 @@
 import { makeStyles, mergeClasses } from "@fluentui/react-components";
 import { ImportXMLResult, SaveSVGResult, SaveXMLOptions, SaveXMLResult } from 'bpmn-js/lib/BaseViewer';
-import BpmnModeler from 'camunda-bpmn-js/lib/camunda-platform/Modeler';
+import BaseViewer from 'camunda-bpmn-js/lib/camunda-platform/Viewer';
 import { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
 import { translateModule } from '../../i18n/bpmn/translate.provider';
 // @ts-ignore
 import axios from "axios";
+import './bpmn.css'
 
 export type IBpmnViewerProps = {
   className?: string;
   url?: string;
   diagramXml?: string;
+  activityInstances?: any[];
 }
 
 export interface IBpmnViewerRef {
@@ -36,18 +38,18 @@ export const BpmnViewer = forwardRef<IBpmnViewerRef, IBpmnViewerProps>((props, r
   const styles = useStyles();
   const containerRef = useRef<any>(null);
   const propertiesPanelRef = useRef<any>(null);
-  const bpmnModeler = useRef<BpmnModeler>();
+  const bpmnViewer = useRef<BaseViewer>();
 
   useEffect(() => {
     if (!containerRef || !containerRef.current) {
       return;
     }
 
-    if (bpmnModeler.current) {
-      bpmnModeler.current.destroy();
+    if (bpmnViewer.current) {
+      bpmnViewer.current.destroy();
     }
 
-    bpmnModeler.current = new BpmnModeler({
+    bpmnViewer.current = new BaseViewer({
       container: containerRef.current,
       propertiesPanel: {
         parent: propertiesPanelRef.current
@@ -63,14 +65,28 @@ export const BpmnViewer = forwardRef<IBpmnViewerRef, IBpmnViewerProps>((props, r
     // load
     if (props.url) {
       axios.create().get(props.url).then((res) => {
-        bpmnModeler.current && bpmnModeler.current.importXML(res.data);
+        bpmnViewer.current && bpmnViewer.current.importXML(res.data);
       });
     } else if (props.diagramXml) {
-      bpmnModeler.current.importXML(props.diagramXml);
+      bpmnViewer.current.importXML(props.diagramXml).then((result) => {
+        if (!bpmnViewer.current) {
+          return;
+        }
+        var canvas: any = bpmnViewer.current.get('canvas');
+        canvas.zoom('fit-viewport');
+        if (props.activityInstances) {
+          console.log(props.activityInstances);
+          props.activityInstances.forEach((ai: any) => {
+            canvas.addMarker(ai.activityId, 'highlight');
+          });
+          
+        }
+
+      });
     }
 
     return () => {
-      bpmnModeler.current && bpmnModeler.current.destroy();
+      bpmnViewer.current && bpmnViewer.current.destroy();
     }
   }, [props]);
 
@@ -79,26 +95,26 @@ export const BpmnViewer = forwardRef<IBpmnViewerRef, IBpmnViewerProps>((props, r
     importXML: async (xml: string): Promise<ImportXMLResult> => {
       console.log(xml);
 
-      if (!bpmnModeler.current) {
+      if (!bpmnViewer.current) {
         return { warnings: [] };
       }
       
-      return bpmnModeler.current.importXML(xml);
+      return bpmnViewer.current.importXML(xml);
     },
     saveSVG: async (): Promise<SaveSVGResult> => {
-      if (!bpmnModeler.current) {
+      if (!bpmnViewer.current) {
         return { svg: '' };
       }
-      return bpmnModeler.current.saveSVG();
+      return bpmnViewer.current.saveSVG();
     },
     saveXML: async (options?: SaveXMLOptions): Promise<SaveXMLResult> => {
-      if (!bpmnModeler.current) {
+      if (!bpmnViewer.current) {
         return { xml: '' };
       }
-      return bpmnModeler.current.saveXML({ ...options, format: true });
+      return bpmnViewer.current.saveXML({ ...options, format: true });
     },
     
-  }), [bpmnModeler.current]);
+  }), [bpmnViewer.current]);
 
   return (
     <div className={mergeClasses(styles.root, props.className)}>

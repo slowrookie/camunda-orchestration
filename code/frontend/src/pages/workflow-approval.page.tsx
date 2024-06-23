@@ -10,6 +10,9 @@ import {
   Link,
   Option,
   OverlayDrawer,
+  Popover,
+  PopoverSurface,
+  PopoverTrigger,
   Spinner,
   Toolbar,
   ToolbarButton,
@@ -28,6 +31,7 @@ import { Page } from '../services/api.service';
 import { FormDef, FormDefDetail, getFormDefDetailLatest } from '../services/form.service';
 import { WorkflowApproval, getWorkflowApprovals, startWorkflowApproval } from '../services/workflow-approval.service';
 import { processDefinitionStatisticsGrouped } from '../services/workflow.service';
+import { ProcessInstanceViewer } from '../components/process/process-instance-viewer.component';
 
 const useStyles = makeStyles({
   root: {
@@ -94,9 +98,16 @@ export const WorkflowApprovalPage = () => {
     },
     {
       key: 'latestProcessInstanceNode', name: '当前节点', resizable: true, renderCell: (data: any) => {
-        console.log(data.row.latestProcessInstanceNode);
-        
-        return data.row.latestProcessInstanceNode;
+        return (
+          <Popover withArrow>
+            <PopoverTrigger disableButtonEnhancement>
+              <Link onClick={() => { }}>{data.row.latestProcessInstanceNode}</Link>
+            </PopoverTrigger>
+            <PopoverSurface tabIndex={-1}>
+              <ProcessInstanceViewer processDefinitionId={data.row.processDefinitionId} processInstanceId={data.row.processInstanceId} />
+            </PopoverSurface>
+          </Popover>
+        )
       }
     },
     {

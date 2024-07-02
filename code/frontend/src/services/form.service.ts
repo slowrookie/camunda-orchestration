@@ -18,6 +18,11 @@ export type FormDefDetail = {
   formDefId?: string;
 }
 
+export type FromDefAndData = {
+  def: FormDefDetail,
+  data: any
+}
+
 export const getFormDefs = async (pageRequest: PageRequest): Promise<Page<FormDef>> => {
   return axios.get(`/api/biz/form-def?page=${pageRequest.number}&size=${pageRequest.size}`)
     .then((res) => res.data);
@@ -33,3 +38,7 @@ export const createOrModifyFormDef = async (u: FormDefDetail): Promise<FormDefDe
     .then((res) => res.data);
 }
 
+export const getFormDataByBusinessId = async (businessId: string): Promise<FromDefAndData[]> => {
+  return axios.get(`/api/biz/from-data/${businessId}`)
+    .then((res) => res.data);
+}

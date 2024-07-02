@@ -68,18 +68,16 @@ export const BpmnViewer = forwardRef<IBpmnViewerRef, IBpmnViewerProps>((props, r
         bpmnViewer.current && bpmnViewer.current.importXML(res.data);
       });
     } else if (props.diagramXml) {
-      bpmnViewer.current.importXML(props.diagramXml).then((result) => {
+      bpmnViewer.current.importXML(props.diagramXml).then(() => {
         if (!bpmnViewer.current) {
           return;
         }
         var canvas: any = bpmnViewer.current.get('canvas');
         canvas.zoom('fit-viewport');
         if (props.activityInstances) {
-          console.log(props.activityInstances);
           props.activityInstances.forEach((ai: any) => {
             canvas.addMarker(ai.activityId, 'highlight');
           });
-          
         }
 
       });

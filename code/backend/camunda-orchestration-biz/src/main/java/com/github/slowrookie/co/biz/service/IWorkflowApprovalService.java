@@ -9,5 +9,7 @@ public interface IWorkflowApprovalService {
 
     Page<WorkflowApproval> findAll(PageRequest of);
 
+    Page<WorkflowApproval> findAllPending(String userId, PageRequest of);
+
     void start(WorkflowApprovalStartDto dto);
 }

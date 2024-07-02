@@ -13,6 +13,8 @@ import {
   SignOut20Regular,
   Form20Filled,
   Form20Regular,
+  DesktopFlow20Filled,
+  DesktopFlow20Regular,
   bundleIcon
 } from "@fluentui/react-icons";
 import {
@@ -25,6 +27,7 @@ import {
   NavDrawerHeaderNav,
   NavDrawerProps,
   NavItem,
+  NavSectionHeader,
   NavSubItem,
   NavSubItemGroup
 } from "@fluentui/react-nav-preview";
@@ -38,17 +41,30 @@ const WorkflowIcon = bundleIcon(Flowchart20Filled, Flowchart20Regular);
 const SignOutIcon = bundleIcon(SignOut20Filled, SignOut20Regular);
 const BusinessIcon = bundleIcon(HexagonThree20Filled, HexagonThree20Regular);
 const FormIcon = bundleIcon(Form20Filled, Form20Regular);
+const DesktopFlowIcon = bundleIcon(DesktopFlow20Filled, DesktopFlow20Regular);
 
 const NavMenuData = [
+  { group: '业务流程', icon: BusinessIcon},
+  {
+    id: "/dashboard/workflow/approval",
+    name: "流程审批",
+    icon: DesktopFlowIcon,
+    children: [
+      {
+        id: "/dashboard/workflow/approval/submitted",
+        name: "已提交",
+      },
+      {
+        id: "/dashboard/workflow/approval/pending",
+        name: "待处理",
+      }
+    ]
+  },
   {
     id: "/dashboard/worflow",
     name: "流程建模",
     icon: BusinessIcon,
     children: [
-      {
-        id: "/dashboard/workflow/approval",
-        name: "流程审批",
-      },
       {
         id: "/dashboard/workflow/2",
         name: "功能编排",
@@ -63,6 +79,7 @@ const NavMenuData = [
       }
     ]
   },
+  { group: '配置', icon: BusinessIcon },
   {
     id: "/dashboard/workflows",
     name: "流程管理",
@@ -164,6 +181,9 @@ export const NavMenu = (props: INavMenuProps) => {
       </NavDrawerHeader>
       <NavDrawerBody>
         {NavMenuData.map((item) => {
+          if (item.group) {
+            return <NavSectionHeader>{item.group}</NavSectionHeader>
+          }
           if (item.children) {
             return (
               <NavCategory value={item.id} key={item.id}>

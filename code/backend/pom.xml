@@ -12,7 +12,7 @@
         <java.version>17</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <dubbo.version>3.3.0-beta.3</dubbo.version>
+        <dubbo.version>3.3.0-beta.4</dubbo.version>
         <spring-boot.version>3.1.2</spring-boot.version>
         <camunda.version>7.21.0</camunda.version>
     </properties>

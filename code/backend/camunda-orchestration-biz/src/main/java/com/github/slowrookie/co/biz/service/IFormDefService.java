@@ -5,8 +5,6 @@ import com.github.slowrookie.co.biz.model.FormDefDetail;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
-import java.util.List;
-
 public interface IFormDefService {
 
     Page<FormDef> findAll(PageRequest of);

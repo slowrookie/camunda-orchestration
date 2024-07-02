@@ -1,6 +1,5 @@
 package com.github.slowrookie.co.dubbo.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.slowrookie.co.dubbo.api.ICamundaRuntimeService;
 import com.github.slowrookie.co.dubbo.model.CamundaActivityInstance;
 import com.github.slowrookie.co.dubbo.model.CamundaProcessInstance;
@@ -16,13 +15,11 @@ import org.camunda.bpm.engine.runtime.*;
 import org.camunda.bpm.engine.variable.VariableMap;
 import org.camunda.bpm.engine.variable.value.TypedValue;
 import org.springframework.beans.BeanUtils;
-import org.springframework.util.SerializationUtils;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @DubboService
 public class CamundaRuntimeServiceImpl implements ICamundaRuntimeService {

@@ -5,14 +5,15 @@ import {
 import { useEffect, useState } from "react";
 import { Route, Routes } from "react-router-dom";
 import { NavMenu } from "../components/nav-menu.component";
+import { MeProvider } from "../context/MeContexnt";
 import { Me, me } from "../services/auth.service";
+import { DashboardPage } from "./dashboard.page";
+import { FormPage } from "./form.page";
 import { GroupPage } from "./group.page";
 import { UserPage } from "./user.page";
 import { WorkflowPage } from "./worflow.page";
-import { FormPage } from "./form.page";
-import { DashboardPage } from "./dashboard.page";
-import { WorkflowApprovalPage } from "./workflow-approval.page";
-import { MeProvider } from "../context/MeContexnt";
+import { WorkflowApprovalPendingPage } from "./workflow-approval-pending.page";
+import { WorkflowApprovalSubmittedPage } from "./workflow-approval-submitted.page";
 
 const useStyles = makeStyles({
   root: {
@@ -58,7 +59,8 @@ export const MainLayout = () => {
           <div className={styles.content}>
             <Routes>
               <Route path="/workflows" element={<WorkflowPage />} />
-              <Route path="/workflow/approval" element={<WorkflowApprovalPage />} />
+              <Route path="/workflow/approval/submitted" element={<WorkflowApprovalSubmittedPage />} />
+              <Route path="/workflow/approval/pending" element={<WorkflowApprovalPendingPage />} />
               <Route path="/settings/users" element={<UserPage />} />
               <Route path="/settings/groups" element={<GroupPage />} />
               <Route path="/forms" element={<FormPage />} />

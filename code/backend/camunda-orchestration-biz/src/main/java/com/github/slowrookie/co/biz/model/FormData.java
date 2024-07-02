@@ -36,7 +36,7 @@ public class FormData extends AbstractPersistableUuid implements Serializable {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String value;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "form_def_detail_id", nullable = false)
     private FormDefDetail formDefDetail;
 

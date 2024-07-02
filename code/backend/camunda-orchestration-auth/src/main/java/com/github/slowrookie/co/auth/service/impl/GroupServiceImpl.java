@@ -85,4 +85,9 @@ public class GroupServiceImpl implements IGroupService {
     public List<Group> getGroups(List<String> ids) {
         return groupRepository.findAllById(ids);
     }
+
+    @Override
+    public List<Group> getGroupsByUserId(String userId) {
+        return groupRepository.findByUsersId(userId);
+    }
 }

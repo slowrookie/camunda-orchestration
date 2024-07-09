@@ -35,11 +35,7 @@ public class GroupController {
     private ResponseEntity<Object> create(@RequestBody @Valid GroupCreateDto dto) {
         Group group = new Group();
         group.setName(dto.getName());
-        if (!CollectionUtils.isEmpty(dto.getUsers())) {
-            List<User> users = userService.findAllById(dto.getUsers().stream().map(User::getId).toList());
-            group.setUsers(users);
-        }
-        groupService.newGroup(group);
+        groupService.groupWithUsers(group, dto.getUsers());
         return ResponseEntity.noContent().build();
     }
 
@@ -50,7 +46,7 @@ public class GroupController {
             return ResponseEntity.notFound().build();
         }
         Group group = go.get();
-        groupService.saveWithUsers(group, dto.getUsers());
+        groupService.groupWithUsers(group, dto.getUsers());
         return ResponseEntity.noContent().build();
     }
 

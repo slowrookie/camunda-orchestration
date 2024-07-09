@@ -39,6 +39,9 @@ public class WorkflowApproval extends AbstractPersistableUuid implements Seriali
     @Column
     private String processInstanceId;
 
+    @Column
+    private String processInstanceState;
+
     @CreatedDate
     @Column(nullable = false)
     private Instant createdDate;

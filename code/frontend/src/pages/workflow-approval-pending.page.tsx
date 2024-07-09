@@ -1,16 +1,21 @@
 import {
+  Button,
   Link,
   Popover,
   PopoverSurface,
   PopoverTrigger,
   Spinner,
+  Tooltip,
   makeStyles,
   tokens
 } from '@fluentui/react-components';
-import { UIEvent, useCallback, useEffect, useState } from 'react';
+import { Play20Regular } from '@fluentui/react-icons';
+import dayjs from 'dayjs';
+import { MouseEvent, UIEvent, useCallback, useEffect, useState } from 'react';
 import type { Column } from 'react-data-grid';
 import DataGrid from 'react-data-grid';
 import { ProcessInstanceViewer } from '../components/process/process-instance-viewer.component';
+import { WorkflowApprovalFormProcess } from '../components/workflow-approval/worflow-approval-form-process.component';
 import { IWorkflowApprovalFormProps, WorkflowApprovalForm } from '../components/workflow-approval/worflow-approval-form.component';
 import { Page } from '../services/api.service';
 import { FormDef } from '../services/form.service';
@@ -69,6 +74,17 @@ export const WorkflowApprovalPendingPage = () => {
       setWorkflowApprovalFormProps({ ...workflowApprovalFormProps, isOpen: open });
     }
   });
+
+  // process
+  const [workflowApprovalFormProcessProps, setWorkflowApprovalFormProcessProps] = useState<IWorkflowApprovalFormProps>({
+    isOpen: false,
+    readonly: false,
+    onSubmitted: () => { setPageRequest({ number: 0, size: PAGE_SIZE }); },
+    onOpenChange: (open: boolean) => { 
+      setWorkflowApprovalFormProcessProps({ ...workflowApprovalFormProcessProps, isOpen: open });
+    }
+  });
+
   // grid data
   const [pageReuqest, setPageRequest] = useState({ number: 0, size: PAGE_SIZE });
   const [currentPage, setCurrentPage] = useState<Page<WorkflowApproval>>();
@@ -108,8 +124,31 @@ export const WorkflowApprovalPendingPage = () => {
       key: 'createdBy', name: '创建人'
     },
     {
-      key: 'createdDate', name: '创建时间'
+      key: 'createdDate', name: '创建时间', renderCell: (data: any) => {
+        return <span>{dayjs(data.row.createdDate).format('YYYY-MM-DD HH:mm:ss')}</span>
+      }
     },
+    {key: 'operater', name: '操作', resizable: true, 
+      renderHeaderCell: (props: any) => {
+        return (
+          <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
+            <span>{props.column.name}</span>
+          </div>
+        )
+      },
+      renderCell: (data: any) => {
+        return (
+          <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
+            <Tooltip content="处理流程" relationship="description" withArrow>
+              <Button appearance='subtle' icon={<Play20Regular />} onClick={(e: MouseEvent) => {
+                e.stopPropagation();
+                e.preventDefault();
+                setWorkflowApprovalFormProcessProps({ ...workflowApprovalFormProcessProps, isOpen: true, readonly: false, workflowApproval: data.row });
+              }} />
+            </Tooltip>
+          </div>
+        )
+      }}
   ]);
 
   useEffect(() => {
@@ -136,6 +175,8 @@ export const WorkflowApprovalPendingPage = () => {
     <div className={styles.root}>
 
       <WorkflowApprovalForm {...workflowApprovalFormProps}/>
+
+      <WorkflowApprovalFormProcess {...workflowApprovalFormProcessProps}/>
 
       <div className={styles.dataGrid}>
         <DataGrid

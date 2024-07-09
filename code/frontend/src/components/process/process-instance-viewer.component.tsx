@@ -3,11 +3,22 @@ import { useEffect, useState } from "react";
 import { DocumentFlowchart20Filled, TaskListLtr20Regular, PointScan20Regular } from "@fluentui/react-icons";
 import { getActivityInstance, processDefinitionXmlById } from "../../services/workflow.service";
 import { BpmnViewer } from "../bpmn/bpmn-viewer.component";
+import type { Column } from 'react-data-grid';
+import DataGrid from 'react-data-grid';
 
 export type IProcessInstanceViewerProps = {
   processDefinitionId: string;
   processInstanceId?: string;
 }
+
+const activitiesColumns: readonly Column<any>[] = ([
+  {key: 'id', name: 'ID', resizable: true,},
+  {key: 'activityId', name: 'Activity Id', resizable: true,},
+  {key: 'activityType', name: 'Activity Type', resizable: true,},
+  {key: 'name', name: 'name', resizable: true,},
+]);
+
+
 
 export const ProcessInstanceViewer = (props: IProcessInstanceViewerProps) => {
 
@@ -57,7 +68,16 @@ export const ProcessInstanceViewer = (props: IProcessInstanceViewerProps) => {
     </TabList>
     <div style={{width: '800px', height: '800px'}}>
       {selectedTabValue === "diagram" && diagramXml && <BpmnViewer diagramXml={diagramXml} activityInstances={activityInstances}/>}
-      {selectedTabValue === "activties" && <div>activties</div>}
+      {selectedTabValue === "activties" && <div>
+        <DataGrid
+          className="fill-grid rdg-light"
+          style={{ height: "100%" }}
+          columns={activitiesColumns}
+          rows={activityInstances as any}
+          rowHeight={30}
+          rowKeyGetter={(r: any) => r.key}
+        />
+      </div>}
       {selectedTabValue === "operations" && <div>operations</div>}
     </div>
     

@@ -8,6 +8,4 @@ import java.util.List;
 
 public interface IGroupRepository extends JpaRepository<Group, String>{
 
-    List<Group> findByUsersId(String userId);
-
 }

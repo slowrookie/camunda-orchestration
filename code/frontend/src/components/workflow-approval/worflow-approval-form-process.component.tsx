@@ -20,7 +20,7 @@ import validator from '@rjsf/validator-ajv8';
 import { useCallback, useEffect, useState } from 'react';
 import { useMe } from '../../context/MeContexnt';
 import { FormDefDetail, getFormDataByBusinessId, getFormDefDetailLatest } from '../../services/form.service';
-import { WorkflowApproval, startWorkflowApproval } from '../../services/workflow-approval.service';
+import { WorkflowApproval, WorkflowApprovalProcess, processWorkflowApproval } from '../../services/workflow-approval.service';
 import { processDefinitionStatisticsGrouped } from "../../services/workflow.service";
 
 const useStyles = makeStyles({
@@ -38,7 +38,7 @@ const useStyles = makeStyles({
   },
 });
 
-export type IWorkflowApprovalFormProps = {
+export type IWorkflowApprovalFormProcessProps = {
   isOpen: boolean,
   readonly?: boolean,
   onSubmitted?: () => void,
@@ -46,7 +46,7 @@ export type IWorkflowApprovalFormProps = {
   workflowApproval?: WorkflowApproval
 }
 
-export const WorkflowApprovalForm = (props: IWorkflowApprovalFormProps) => {
+export const WorkflowApprovalFormProcess = (props: IWorkflowApprovalFormProcessProps) => {
   const styles = useStyles();
   const me = useMe();
 
@@ -143,10 +143,20 @@ export const WorkflowApprovalForm = (props: IWorkflowApprovalFormProps) => {
     />
   }, [selectedFormDefDetail, formData]);
 
-  const handleStart = () => {
+  const handleSubmit = () => {
     setInProcess(true);
-    selectedWorkflowApproval.formData = formData;
-    startWorkflowApproval(selectedWorkflowApproval)
+    if (!selectedWorkflowApproval.processInstanceId 
+        || !selectedWorkflowApproval.taskId) {
+      return;
+    }
+    let processData: WorkflowApprovalProcess = {
+      id: selectedWorkflowApproval.id,
+      processDefinitionId: selectedProcessDefinition.id,
+      processInstanceId: selectedWorkflowApproval.processInstanceId,
+      taskId: selectedWorkflowApproval.taskId,
+    }
+    
+    processWorkflowApproval(processData)
       .then(() => {
         setIsOpen(false);
         props.onSubmitted && props.onSubmitted();
@@ -176,7 +186,7 @@ export const WorkflowApprovalForm = (props: IWorkflowApprovalFormProps) => {
         <DrawerHeaderTitle action={
           <Button appearance="subtle" aria-label="Close" size='small' icon={<Dismiss20Regular />} onClick={() => handleToggleChange(!isOpen)} />
         }>
-          {props.readonly ? '流程信息' : '开始流程'}
+          {props.readonly ? '流程信息' : '处理流程'}
         </DrawerHeaderTitle>
       </DrawerHeader>
       <DrawerBody className={styles.drawerBody}>
@@ -221,15 +231,13 @@ export const WorkflowApprovalForm = (props: IWorkflowApprovalFormProps) => {
         {createForm()}
 
 
-
       </DrawerBody>
       <DrawerFooter className={styles.drawerFooter}>
         <ToolbarButton appearance='primary'
           icon={<>{inProcess ? <Spinner size='tiny' /> : <Play20Regular />}</>}
-          disabled={inProcess || !selectedWorkflowApproval.title || !selectedWorkflowApproval.formDefDetailId
-            || !selectedWorkflowApproval.processDefinitionId || formErros.length}
-          onClick={handleStart}
-        >开始</ToolbarButton>
+          disabled={inProcess}
+          onClick={handleSubmit}
+        >提交</ToolbarButton>
       </DrawerFooter>
     </OverlayDrawer>
   </>)

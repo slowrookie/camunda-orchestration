@@ -3,14 +3,12 @@ package com.github.slowrookie.co.auth.dubbo.service;
 import com.github.slowrookie.auth.dubbo.api.IAuthUserService;
 import com.github.slowrookie.auth.dubbo.model.AuthGroup;
 import com.github.slowrookie.auth.dubbo.model.AuthUser;
-import com.github.slowrookie.co.auth.model.User;
 import com.github.slowrookie.co.auth.service.IGroupService;
 import com.github.slowrookie.co.auth.service.IUserService;
 import jakarta.annotation.Resource;
 import org.apache.dubbo.config.annotation.DubboService;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**

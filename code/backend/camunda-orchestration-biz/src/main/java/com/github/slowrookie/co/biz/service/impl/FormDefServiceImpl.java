@@ -13,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class FormDefServiceImpl implements IFormDefService {
@@ -36,11 +35,12 @@ public class FormDefServiceImpl implements IFormDefService {
 
     @Transactional
     @Override
-    public FormDefDetail createFormDefDetail(FormDefDetail formDefDetail) {
-        formDefDetail.getFormDef().setLastModifiedDate(Instant.now());
-        formDefDetail.getFormDef().setRev(formDefDetail.getFormDef().getRev() + 1);
-        FormDef formDef = formDefRepository.save(formDefDetail.getFormDef());
-        formDefDetail.setVersion(formDef.getRev());
+    public FormDefDetail create(FormDef formDef, FormDefDetail formDefDetail) {
+        formDef.setLastModifiedDate(Instant.now());
+        formDef.setRev(formDef.getRev() + 1);
+        FormDef fd = formDefRepository.save(formDef);
+        formDefDetail.setFormDefId(fd.getId());
+        formDefDetail.setVersion(fd.getRev());
         return formDefDetailRepository.save(formDefDetail);
     }
 
@@ -55,8 +55,7 @@ public class FormDefServiceImpl implements IFormDefService {
     }
 
     @Override
-    public Iterable<FormDefDetail> findFormDefDetailLatest() {
-        List<FormDef> formDefList = formDefRepository.findAll();
-        return formDefList.stream().map(f -> f.getFormDefDetails().get(0)).collect(Collectors.toList());
+    public List<FormDefDetail> findFormDefDetailLatest() {
+        return formDefDetailRepository.findLatestVersion();
     }
 }

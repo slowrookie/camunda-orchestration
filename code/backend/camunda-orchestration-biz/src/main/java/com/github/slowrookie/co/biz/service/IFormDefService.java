@@ -11,7 +11,7 @@ public interface IFormDefService {
 
     FormDef get(String id);
 
-    FormDefDetail createFormDefDetail(FormDefDetail formDefDetail);
+    FormDefDetail create(FormDef formDef, FormDefDetail formDefDetail);
 
     FormDefDetail getFormDetailById(String id);
 

@@ -9,22 +9,13 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * @author jiaxing.liu
- * @date 2024/5/13
- **/
 public interface IGroupService {
 
-    // 添加分组
-    void newGroup(Group group);
+    void groupWithUsers(Group group, List<User> users);
 
     Page<Group> findAll(Pageable pageable);
 
     Optional<Group> getById(String id);
-
-    void save(Group group);
-
-    void saveWithUsers(Group group, List<User> users);
 
     List<Group> getGroups(List<String> ids);
 

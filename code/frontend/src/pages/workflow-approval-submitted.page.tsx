@@ -1,4 +1,5 @@
 import {
+  Badge,
   Link,
   Popover,
   PopoverSurface,
@@ -19,6 +20,8 @@ import { IWorkflowApprovalFormProps, WorkflowApprovalForm } from '../components/
 import { Page } from '../services/api.service';
 import { FormDef } from '../services/form.service';
 import { WorkflowApproval, getWorkflowApprovals } from '../services/workflow-approval.service';
+import dayjs from 'dayjs';
+import { ProcessInstanceState } from '../services/workflow.service';
 
 const useStyles = makeStyles({
   root: {
@@ -92,7 +95,7 @@ export const WorkflowApprovalSubmittedPage = () => {
       }
     },
     {
-      key: 'latestProcessInstanceNode', name: '当前节点', resizable: true, renderCell: (data: any) => {
+      key: 'latestProcessInstanceNode', name: '流程', resizable: true, renderCell: (data: any) => {
         return (
           <Popover withArrow>
             <PopoverTrigger disableButtonEnhancement>
@@ -106,13 +109,45 @@ export const WorkflowApprovalSubmittedPage = () => {
       }
     },
     {
-      key: 'operationTime', name: '操作时间'
+      key: 'latestProcessInstanceNode', name: '待处理节点', resizable: true, renderCell: (data: any) => {
+        return (
+          <Popover withArrow>
+            <PopoverTrigger disableButtonEnhancement>
+              <Link onClick={() => { }}>{data.row.latestProcessInstanceNode}</Link>
+            </PopoverTrigger>
+            <PopoverSurface tabIndex={-1}>
+              <ProcessInstanceViewer processDefinitionId={data.row.processDefinitionId} processInstanceId={data.row.processInstanceId} />
+            </PopoverSurface>
+          </Popover>
+        )
+      }
+    },
+    {
+      key: 'processInstanceState', name: '流程状态', width: 100, 
+      renderHeaderCell: (props: any) => {
+        return (
+          <div style={{textAlign: 'center'}}>
+            <span>{props.column.name}</span>
+          </div>
+        )
+      },
+      renderCell: (data: any) => {
+        return (<div style={{textAlign: 'center'}}>
+          {data.row.processInstanceState == ProcessInstanceState.COMPLETED && <Badge appearance="filled" color="success">已完成</Badge>}
+          {data.row.processInstanceState == ProcessInstanceState.ACTIVE && <Badge appearance="filled" color="brand">进行中</Badge>}
+          {data.row.processInstanceState == ProcessInstanceState.SUSPENDED && <Badge appearance="filled" color="informative">已挂起</Badge>}
+          {data.row.processInstanceState == ProcessInstanceState.EXTERNALLY_TERMINATED && <Badge appearance="filled" color="warning">外部终止</Badge>}
+          {data.row.processInstanceState == ProcessInstanceState.INTERNALLY_TERMINATED && <Badge appearance="filled" color="warning">内部终止</Badge>}
+        </div>)
+      }
     },
     {
       key: 'createdBy', name: '创建人'
     },
     {
-      key: 'createdDate', name: '创建时间'
+      key: 'createdDate', name: '创建时间', renderCell: (data: any) => {
+        return <span>{dayjs(data.row.createdDate).format('YYYY-MM-DD HH:mm:ss')}</span>
+      }
     },
   ]);
 

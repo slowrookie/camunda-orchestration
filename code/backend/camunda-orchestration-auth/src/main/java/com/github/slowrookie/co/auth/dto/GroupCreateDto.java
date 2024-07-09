@@ -6,10 +6,6 @@ import lombok.Data;
 
 import java.util.List;
 
-/**
- * @author jiaxing.liu
- * @date 2024/5/17
- **/
 @Data
 public class GroupCreateDto {
 

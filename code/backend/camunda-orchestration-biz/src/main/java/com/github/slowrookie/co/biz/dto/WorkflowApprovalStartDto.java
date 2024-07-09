@@ -5,10 +5,6 @@ import lombok.Data;
 
 import java.util.Map;
 
-/**
- * @author jiaxing.liu
- * @date 2024/6/21
- **/
 @Data
 public class WorkflowApprovalStartDto {
 

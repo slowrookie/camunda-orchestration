@@ -1,12 +1,13 @@
 package com.github.slowrookie.co.biz.model;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -16,7 +17,6 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.UUID;
 
 @EqualsAndHashCode(callSuper = true)
 @Entity
@@ -36,9 +36,8 @@ public class FormData extends AbstractPersistableUuid implements Serializable {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String value;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "form_def_detail_id", nullable = false)
-    private FormDefDetail formDefDetail;
+    @Column(nullable = false)
+    private String formDefDetailId;
 
     @Column(nullable = false)
     private String businessId;

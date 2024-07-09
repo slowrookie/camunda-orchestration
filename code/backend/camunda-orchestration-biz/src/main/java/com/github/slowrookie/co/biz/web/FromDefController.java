@@ -44,8 +44,8 @@ public class FromDefController {
         }
         FormDefDetail detail = new FormDefDetail();
         BeanUtils.copyProperties(dto, detail);
-        detail.setFormDef(formDef);
-        detail = formDefService.createFormDefDetail(detail);
+        detail.setFormDefId(formDef.getId());
+        detail = formDefService.create(formDef, detail);
         return ResponseEntity.ok(detail);
     }
 

@@ -25,7 +25,7 @@ public abstract class AbstractPersistableUuid implements Persistable<String> {
      *
      * @param id the id to set
      */
-    protected void setId(@Nullable String id) {
+    public void setId(@Nullable String id) {
         this.id = id;
     }
 

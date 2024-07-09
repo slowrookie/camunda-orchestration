@@ -1,6 +1,15 @@
 import axios from "axios";
 
 
+// workflow process instance state enum
+export enum ProcessInstanceState {
+  ACTIVE = "ACTIVE",
+  SUSPENDED = "SUSPENDED",
+  COMPLETED = "COMPLETED",
+  EXTERNALLY_TERMINATED = "EXTERNALLY_TERMINATED",
+  INTERNALLY_TERMINATED = "INTERNALLY_TERMINATED",
+}
+
 export const deploymentCreate = async (diagram: string): Promise<any> => {
   // convert string to file
   const blob = new Blob([diagram], { type: 'text/xml' });

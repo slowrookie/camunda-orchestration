@@ -1,8 +1,10 @@
 package com.github.slowrookie.co.auth.service.impl;
 
 import com.github.slowrookie.co.auth.model.Group;
+import com.github.slowrookie.co.auth.model.GroupUser;
 import com.github.slowrookie.co.auth.model.User;
 import com.github.slowrookie.co.auth.repository.IGroupRepository;
+import com.github.slowrookie.co.auth.repository.IGroupUserRepository;
 import com.github.slowrookie.co.auth.repository.IUserRepository;
 import com.github.slowrookie.co.auth.service.IGroupService;
 import com.github.slowrookie.co.dubbo.api.ICamundaIdentityService;
@@ -30,24 +32,30 @@ public class GroupServiceImpl implements IGroupService {
     private IGroupRepository groupRepository;
     @Resource
     private IUserRepository userRepository;
-
+    @Resource
+    private IGroupUserRepository groupUserRepository;
 
     @Transactional
     @Override
-    public void newGroup(Group group) {
+    public void groupWithUsers(Group group, List<User> users) {
         group = groupRepository.save(group);
+        // camunda group
         org.camunda.bpm.engine.identity.Group camundaGroup = camundaIdentityService.newGroup(group.getId());
         camundaGroup.setId(group.getId());
         camundaGroup.setName(group.getName());
         camundaGroup.setType("WORKFLOW");
         camundaIdentityService.saveGroup(camundaGroup);
         // membership
-        if (CollectionUtils.isEmpty(group.getUsers())) {
+        if (CollectionUtils.isEmpty(users)) {
             return;
         }
-        Group finalGroup = group;
-        group.getUsers().forEach(user -> camundaIdentityService.createMembership(user.getId(), finalGroup.getId()));
+        String groupId = group.getId();
+        List<GroupUser> groupUsers = users.stream()
+                .map(user -> new GroupUser(groupId, user.getId()))
+                .toList();
+        groupUserRepository.saveAll(groupUsers);
 
+        groupUsers.forEach(groupUser -> camundaIdentityService.createMembership(groupUser.getUser().getId(), groupId));
     }
 
     @Override
@@ -61,33 +69,14 @@ public class GroupServiceImpl implements IGroupService {
     }
 
     @Override
-    public void save(Group group) {
-        groupRepository.save(group);
-    }
-
-    @Transactional
-    @Override
-    public void saveWithUsers(Group group, List<User> users) {
-        // delete membership
-        if (!CollectionUtils.isEmpty(group.getUsers())) {
-            group.getUsers().forEach(user -> camundaIdentityService.deleteMembership(user.getId(), group.getId()));
-        }
-        if (!CollectionUtils.isEmpty(users)) {
-            users = userRepository.findAllById(users.stream().map(User::getId).toList());
-            group.setUsers(users);
-            // create membership
-            users.forEach(user -> camundaIdentityService.createMembership(user.getId(), group.getId()));
-        }
-        groupRepository.save(group);
-    }
-
-    @Override
     public List<Group> getGroups(List<String> ids) {
         return groupRepository.findAllById(ids);
     }
 
     @Override
     public List<Group> getGroupsByUserId(String userId) {
-        return groupRepository.findByUsersId(userId);
+        return groupUserRepository.findGroupByUserId(userId).stream()
+                .map(GroupUser::getGroup)
+                .toList();
     }
 }

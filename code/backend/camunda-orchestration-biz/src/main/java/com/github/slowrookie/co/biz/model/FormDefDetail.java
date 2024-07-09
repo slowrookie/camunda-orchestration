@@ -26,10 +26,8 @@ public class FormDefDetail extends AbstractPersistableUuid implements Serializab
     @Serial
     private static final long serialVersionUID = 1L;
 
-    @JsonBackReference
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "form_def_id", nullable = false)
-    private FormDef formDef;
+    @Column(nullable = false)
+    private String formDefId;
 
     @Column(nullable = false)
     private String name;

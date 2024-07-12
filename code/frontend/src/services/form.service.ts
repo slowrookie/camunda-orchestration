@@ -5,7 +5,6 @@ export type FormDef = {
   id: string;
   key: string;
   rev: number;
-  formDefDetails: FormDefDetail[];
 }
 
 export type FormDefDetail = {
@@ -30,6 +29,16 @@ export const getFormDefs = async (pageRequest: PageRequest): Promise<Page<FormDe
 
 export const getFormDefDetailLatest = async (): Promise<FormDefDetail[]> => {
   return axios.get(`/api/biz/form-def/detail/latest`)
+    .then((res) => res.data);
+}
+
+export const getFormDefDetails = async (): Promise<FormDefDetail[]> => {
+  return axios.get(`/api/biz/form-def/details`)
+    .then((res) => res.data);
+}
+
+export const getFormDefDetailsByFormDefId = async (formDefId: string): Promise<FormDefDetail[]> => {
+  return axios.get(`/api/biz/form-def/${formDefId}/details`)
     .then((res) => res.data);
 }
 

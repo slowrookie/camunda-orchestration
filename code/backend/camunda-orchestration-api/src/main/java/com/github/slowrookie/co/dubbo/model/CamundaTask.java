@@ -7,6 +7,7 @@ import org.camunda.bpm.engine.task.Task;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Set;
 
 @Data
 public class CamundaTask implements Task, Serializable {
@@ -68,5 +69,10 @@ public class CamundaTask implements Task, Serializable {
         }
         setAssignee(userId);
     }
+
+    // Extensions
+    private Set<String> candidateUsers;
+
+    private Set<String> candidateGroups;
 
 }

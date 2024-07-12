@@ -18,4 +18,8 @@ public interface IFormDefService {
     FormDefDetail saveFormDefDetail(FormDefDetail formDefDetail);
 
     Iterable<FormDefDetail> findFormDefDetailLatest();
+
+    Iterable<FormDefDetail> findFormDefDetailByFormDefId(String formDefId);
+
+    Iterable<FormDefDetail> findFormDefDetails();
 }

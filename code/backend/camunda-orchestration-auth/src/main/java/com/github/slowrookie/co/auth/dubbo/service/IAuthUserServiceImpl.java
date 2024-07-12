@@ -11,10 +11,6 @@ import org.apache.dubbo.config.annotation.DubboService;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * @author jiaxing.liu
- * @date 2024/6/21
- **/
 @DubboService
 public class IAuthUserServiceImpl implements IAuthUserService {
 

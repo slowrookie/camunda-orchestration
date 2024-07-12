@@ -19,10 +19,6 @@ import org.springframework.util.CollectionUtils;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * @author jiaxing.liu
- * @date 2024/5/13
- **/
 @Service
 public class GroupServiceImpl implements IGroupService {
 
@@ -40,11 +36,13 @@ public class GroupServiceImpl implements IGroupService {
     public void groupWithUsers(Group group, List<User> users) {
         group = groupRepository.save(group);
         // camunda group
-        org.camunda.bpm.engine.identity.Group camundaGroup = camundaIdentityService.newGroup(group.getId());
-        camundaGroup.setId(group.getId());
-        camundaGroup.setName(group.getName());
-        camundaGroup.setType("WORKFLOW");
-        camundaIdentityService.saveGroup(camundaGroup);
+        if(!camundaIdentityService.existsGroup(group.getId())) {
+            org.camunda.bpm.engine.identity.Group camundaGroup = camundaIdentityService.newGroup(group.getId());
+            camundaGroup.setId(group.getId());
+            camundaGroup.setName(group.getName());
+            camundaGroup.setType("WORKFLOW");
+            camundaIdentityService.saveGroup(camundaGroup);
+        }
         // membership
         if (CollectionUtils.isEmpty(users)) {
             return;
@@ -54,7 +52,6 @@ public class GroupServiceImpl implements IGroupService {
                 .map(user -> new GroupUser(groupId, user.getId()))
                 .toList();
         groupUserRepository.saveAll(groupUsers);
-
         groupUsers.forEach(groupUser -> camundaIdentityService.createMembership(groupUser.getUser().getId(), groupId));
     }
 
@@ -78,5 +75,10 @@ public class GroupServiceImpl implements IGroupService {
         return groupUserRepository.findGroupByUserId(userId).stream()
                 .map(GroupUser::getGroup)
                 .toList();
+    }
+
+    @Override
+    public List<GroupUser> getUsersByGroups(List<String> list) {
+        return groupUserRepository.findByGroupIdIn(list).stream().toList();
     }
 }

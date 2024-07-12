@@ -95,14 +95,14 @@ export const WorkflowApprovalSubmittedPage = () => {
       }
     },
     {
-      key: 'latestProcessInstanceNode', name: '流程', resizable: true, renderCell: (data: any) => {
+      key: 'processDefinition', name: '流程', resizable: true, renderCell: (data: any) => {
         return (
           <Popover withArrow>
             <PopoverTrigger disableButtonEnhancement>
-              <Link onClick={() => { }}>{data.row.latestProcessInstanceNode}</Link>
+              <Link onClick={() => { }}>{data.row?.processDefinition.name}</Link>
             </PopoverTrigger>
             <PopoverSurface tabIndex={-1}>
-              <ProcessInstanceViewer processDefinitionId={data.row.processDefinitionId} processInstanceId={data.row.processInstanceId} />
+              <ProcessInstanceViewer processInstanceId={data.row.processInstanceId} />
             </PopoverSurface>
           </Popover>
         )
@@ -116,7 +116,7 @@ export const WorkflowApprovalSubmittedPage = () => {
               <Link onClick={() => { }}>{data.row.latestProcessInstanceNode}</Link>
             </PopoverTrigger>
             <PopoverSurface tabIndex={-1}>
-              <ProcessInstanceViewer processDefinitionId={data.row.processDefinitionId} processInstanceId={data.row.processInstanceId} />
+              <ProcessInstanceViewer processInstanceId={data.row.processInstanceId} />
             </PopoverSurface>
           </Popover>
         )

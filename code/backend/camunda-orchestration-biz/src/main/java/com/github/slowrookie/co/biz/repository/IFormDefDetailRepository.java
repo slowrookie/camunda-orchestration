@@ -12,4 +12,5 @@ public interface IFormDefDetailRepository extends JpaRepository<FormDefDetail, S
     @Query("select fdd from FormDef fd left join FormDefDetail fdd on fdd.formDefId = fd.id and fdd.version = fd.rev order by fdd.createdDate desc")
     List<FormDefDetail> findLatestVersion();
 
+    Iterable<FormDefDetail> findByFormDefIdOrderByCreatedDateDesc(String formDefId);
 }

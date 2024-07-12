@@ -1,4 +1,20 @@
-.highlight:not(.djs-connection) .djs-visual> :nth-child(1) {
-    stroke: #479ef5 !important;
-    fill: #479ef5 !important;
+.highlight-current:not(.djs-connection) .djs-visual> :nth-child(1) {
+    stroke: #4F82C8 !important;
+    fill: #6790CF !important;
+}
+
+.highlight-completed:not(.djs-connection) .djs-visual> :nth-child(1) {
+    stroke: #BAC9E9 !important;
+    fill: #CDD8EF !important;
+}
+
+.diagram-note {
+    background-color: rgba(66, 180, 21, 0.7);
+    color: White;
+    border-radius: 5px;
+    font-family: Arial;
+    font-size: 10px;
+    padding: 2px;
+    min-height: 12px;
+    width: 120px;
 }

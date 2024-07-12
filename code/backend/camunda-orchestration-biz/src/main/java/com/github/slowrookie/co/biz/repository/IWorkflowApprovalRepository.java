@@ -6,9 +6,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Set;
 
 public interface IWorkflowApprovalRepository extends JpaRepository<WorkflowApproval, String> {
 
-    Page<WorkflowApproval> findAllByProcessInstanceIdIn(List<String> processInstanceIds, PageRequest of);
+    Page<WorkflowApproval> findAllByProcessInstanceIdIn(Set<String> processInstanceIds, PageRequest of);
 
 }

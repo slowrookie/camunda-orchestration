@@ -6,12 +6,14 @@ import { translateModule } from '../../i18n/bpmn/translate.provider';
 // @ts-ignore
 import axios from "axios";
 import './bpmn.css'
+import dayjs from "dayjs";
 
 export type IBpmnViewerProps = {
   className?: string;
   url?: string;
   diagramXml?: string;
-  activityInstances?: any[];
+  currentTasks?: any[];
+  historicTasks?: any[];
 }
 
 export interface IBpmnViewerRef {
@@ -73,10 +75,59 @@ export const BpmnViewer = forwardRef<IBpmnViewerRef, IBpmnViewerProps>((props, r
           return;
         }
         var canvas: any = bpmnViewer.current.get('canvas');
+        var overlays: any = bpmnViewer.current.get('overlays');
         canvas.zoom('fit-viewport');
-        if (props.activityInstances) {
-          props.activityInstances.forEach((ai: any) => {
-            canvas.addMarker(ai.activityId, 'highlight');
+        if (props.historicTasks) {
+          
+          props.historicTasks.forEach((ai: any) => {
+            if(ai.endTime) {
+              canvas.addMarker(ai.taskDefinitionKey, 'highlight-completed');
+              const keyValuePairs: string[] = [];
+              if (ai.assignee) {
+                keyValuePairs.push(`<div><strong>处理人:</strong> ${ai.assignee}</div> `);
+              }
+              if (ai.startTime) {
+                keyValuePairs.push(`<div><strong>开始:</strong> ${dayjs(ai.startTime).format('YYYY-MM-DD HH:mm:ss')}</div>`);
+              }
+              if (ai.endTime) {
+                keyValuePairs.push(`<div><strong>结束:</strong> ${dayjs(ai.endTime).format('YYYY-MM-DD HH:mm:ss')}</div>`);
+              }
+
+              const info: string = keyValuePairs.join(' ');
+              overlays.add(ai.taskDefinitionKey, 'note', {
+                position: {
+                  bottom: -5,
+                  right: 110,
+                },
+                html: `<div class="diagram-note">${info}</div>`
+              });
+            }
+          });
+        }
+        if (props.currentTasks && props.currentTasks.length) {
+          props.currentTasks.forEach((ai: any) => {
+            canvas.addMarker(ai.taskDefinitionKey, 'highlight-current');
+              const keyValuePairs: string[] = [];
+              if (ai.assignee) {
+                keyValuePairs.push(`<div><strong>待处理人:</strong> ${ai.assignee}</div> `);
+              }
+              if (ai.candidateUsers && ai.candidateUsers.length > 0) {
+                keyValuePairs.push(`<div><strong>候选人:</strong> ${ai.candidateUsers.join(',')}</div>`);
+              }
+              if (ai.candidateGroups && ai.candidateGroups.length > 0) {
+                keyValuePairs.push(`<div><strong>候选组:</strong> ${ai.candidateGroups.join(',')}</div>`);
+              }
+              if (ai.createTime) {
+                keyValuePairs.push(`<div><strong>时间:</strong> ${dayjs(ai.createTime).format('YYYY-MM-DD HH:mm:ss')}</div>`);
+              }
+              const info: string = keyValuePairs.join(' ');
+              overlays.add(ai.taskDefinitionKey, 'note', {
+                position: {
+                  bottom: -5,
+                  right: 110,
+                },
+                html: `<div class="diagram-note">${info}</div>`
+              });
           });
         }
 

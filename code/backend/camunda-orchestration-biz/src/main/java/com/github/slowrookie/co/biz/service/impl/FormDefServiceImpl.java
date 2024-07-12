@@ -58,4 +58,14 @@ public class FormDefServiceImpl implements IFormDefService {
     public List<FormDefDetail> findFormDefDetailLatest() {
         return formDefDetailRepository.findLatestVersion();
     }
+
+    @Override
+    public Iterable<FormDefDetail> findFormDefDetailByFormDefId(String formDefId) {
+        return formDefDetailRepository.findByFormDefIdOrderByCreatedDateDesc(formDefId);
+    }
+
+    @Override
+    public Iterable<FormDefDetail> findFormDefDetails() {
+        return formDefDetailRepository.findAll();
+    }
 }

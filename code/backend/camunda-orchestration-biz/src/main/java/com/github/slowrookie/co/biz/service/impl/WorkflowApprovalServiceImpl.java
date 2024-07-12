@@ -80,7 +80,7 @@ public class WorkflowApprovalServiceImpl implements IWorkflowApprovalService {
     }
 
     @Override
-    public Page<WorkflowApproval> findAllPending(String userId, List<String> processInstanceIds, PageRequest of) {
+    public Page<WorkflowApproval> findAllPending(String userId, Set<String> processInstanceIds, PageRequest of) {
         Page<WorkflowApproval> workflowApprovals = workflowApprovalRepository.findAllByProcessInstanceIdIn(processInstanceIds, of);
         List<AuthUser> users = userService.getUsers(workflowApprovals.stream().map(WorkflowApproval::getCreatedBy).collect(Collectors.toList()));
         workflowApprovals.getContent().forEach(workflowApproval -> {
@@ -140,15 +140,16 @@ public class WorkflowApprovalServiceImpl implements IWorkflowApprovalService {
 
     @Transactional
     @Override
-    public void process(WorkflowApproval workflowApproval, CamundaTask task, Map<String, String> variables) {
+    public void process(String userId, WorkflowApproval workflowApproval, CamundaTask task, Map<String, String> variables) {
         // convert variables
         Map<String, Object> variablesMap = variables.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
+        camundaTaskService.completeWithUser(userId, task.getId(), variablesMap);
+
+        // update state
         CamundaHistoricProcessInstance historicProcessInstance = historyService.getHistoricProcessInstanceById(workflowApproval.getProcessInstanceId());
         workflowApproval.setProcessInstanceState(historicProcessInstance.getState());
         workflowApprovalRepository.save(workflowApproval);
-
-        camundaTaskService.complete(task.getId(), variablesMap);
     }
 
 }

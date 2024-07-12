@@ -12,7 +12,7 @@ export type WorkflowApproval = {
   latestProcessInstanceNode?: string,
   processInstanceId?: string,
   processInstanceState?: ProcessInstanceState,
-  taskId?: string
+  currentTask?: any
 }
 
 export type WorkflowApprovalProcess = {
@@ -41,4 +41,10 @@ export const processWorkflowApproval = async (u: WorkflowApprovalProcess): Promi
   return axios.post('/api/biz/workflow-approval/process', u)
     .then((res) => res.data);
 }
+
+export const getProcessInstanceInfo = async (processInstanceId: string): Promise<any> => {
+  return axios.get(`/api/biz/workflow-approval/process-instance-info/${processInstanceId}`)
+    .then((res) => res.data);
+}
+
 

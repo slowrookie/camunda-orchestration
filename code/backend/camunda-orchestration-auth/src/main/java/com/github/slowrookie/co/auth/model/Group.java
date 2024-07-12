@@ -25,5 +25,9 @@ public class Group implements Serializable {
     @Column(unique = true, nullable = false)
     private String name;
 
+    public Group(String id) {
+        this.id = id;
+    }
+
 
 }

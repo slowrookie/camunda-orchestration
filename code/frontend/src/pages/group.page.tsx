@@ -1,4 +1,4 @@
-import { Button, DrawerBody, DrawerHeader, DrawerHeaderTitle, Dropdown, Input, Label, Option, OptionOnSelectData, OverlayDrawer, Persona, Spinner, Toolbar, ToolbarButton, Tooltip, makeStyles, shorthands, tokens } from "@fluentui/react-components";
+import { AvatarGroup, AvatarGroupItem, AvatarGroupPopover, Button, DrawerBody, DrawerHeader, DrawerHeaderTitle, Dropdown, Input, Label, Option, OptionOnSelectData, OverlayDrawer, Persona, Spinner, Toolbar, ToolbarButton, Tooltip, makeStyles, partitionAvatarGroupItems, shorthands, tokens } from "@fluentui/react-components";
 import { Add20Regular, Dismiss20Regular, Edit20Filled } from '@fluentui/react-icons';
 import { UIEvent, useCallback, useEffect, useState } from "react";
 import type { Column } from 'react-data-grid';
@@ -74,6 +74,35 @@ export const GroupPage = () => {
   const columns: readonly Column<Group>[] = ([
     { key: 'id', name: 'ID', resizable: true },
     { key: 'name', name: '组名', resizable: true },
+    {
+      key: 'users', name: '用户', renderCell: (data: any) => {
+        if (!data.row.users) {
+          return <span></span>
+        }
+        
+        const { inlineItems, overflowItems } = partitionAvatarGroupItems({
+          items: data.row.users.map((u: User) => u.username),
+          layout: "stack",
+        });
+
+        return (
+          <div style={{display: "flex", flexDirection: "row", alignItems: 'center', height: '100%'}}>
+            <AvatarGroup layout="stack" size={24} key={24}>
+              {inlineItems.map((name: any) => (
+                <AvatarGroupItem name={name} key={name} />
+              ))}
+              {overflowItems && (
+                <AvatarGroupPopover>
+                  {overflowItems.map((name: any) => (
+                    <AvatarGroupItem name={name} key={name} />
+                  ))}
+                </AvatarGroupPopover>
+              )}
+            </AvatarGroup>
+          </div>
+        );
+      }
+    },
     {
       key: '', name: '操作', renderCell: (data: any) => {
         return <Tooltip content="编辑" relationship="description">
@@ -172,9 +201,9 @@ export const GroupPage = () => {
   return (<>
     <div className={styles.page}>
       <Toolbar size="small" className={styles.toolbar}>
-      <Tooltip content="创建" relationship="description">
-        <ToolbarButton appearance="subtle" icon={isOpen ? <Dismiss20Regular /> : <Add20Regular />} onClick={() => { setIsOpen(!isOpen) }} />
-      </Tooltip>
+        <Tooltip content="创建" relationship="description">
+          <ToolbarButton appearance="subtle" icon={isOpen ? <Dismiss20Regular /> : <Add20Regular />} onClick={() => { setIsOpen(!isOpen) }} />
+        </Tooltip>
         {groupCreate()}
       </Toolbar>
 

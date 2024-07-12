@@ -2,6 +2,7 @@ package com.github.slowrookie.co.auth.service;
 
 
 import com.github.slowrookie.co.auth.model.Group;
+import com.github.slowrookie.co.auth.model.GroupUser;
 import com.github.slowrookie.co.auth.model.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,4 +22,5 @@ public interface IGroupService {
 
     List<Group> getGroupsByUserId(String userId);
 
+    List<GroupUser> getUsersByGroups(List<String> list);
 }

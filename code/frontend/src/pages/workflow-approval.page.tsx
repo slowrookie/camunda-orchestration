@@ -104,7 +104,7 @@ export const WorkflowApprovalPage = () => {
               <Link onClick={() => { }}>{data.row.latestProcessInstanceNode}</Link>
             </PopoverTrigger>
             <PopoverSurface tabIndex={-1}>
-              <ProcessInstanceViewer processDefinitionId={data.row.processDefinitionId} processInstanceId={data.row.processInstanceId} />
+              <ProcessInstanceViewer processInstanceId={data.row.processInstanceId} />
             </PopoverSurface>
           </Popover>
         )

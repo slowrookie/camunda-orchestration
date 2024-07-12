@@ -1,21 +1,39 @@
 import { SelectTabData, SelectTabEvent, Tab, TabList, TabValue } from "@fluentui/react-components";
+import { DocumentFlowchart20Filled, TaskListLtr20Regular } from "@fluentui/react-icons";
+import dayjs from "dayjs";
 import { useEffect, useState } from "react";
-import { DocumentFlowchart20Filled, TaskListLtr20Regular, PointScan20Regular } from "@fluentui/react-icons";
-import { getActivityInstance, processDefinitionXmlById } from "../../services/workflow.service";
-import { BpmnViewer } from "../bpmn/bpmn-viewer.component";
 import type { Column } from 'react-data-grid';
 import DataGrid from 'react-data-grid';
+import { getProcessInstanceInfo } from "../../services/workflow-approval.service";
+import { BpmnViewer } from "../bpmn/bpmn-viewer.component";
 
 export type IProcessInstanceViewerProps = {
-  processDefinitionId: string;
-  processInstanceId?: string;
+  processInstanceId: string;
 }
 
-const activitiesColumns: readonly Column<any>[] = ([
-  {key: 'id', name: 'ID', resizable: true,},
-  {key: 'activityId', name: 'Activity Id', resizable: true,},
-  {key: 'activityType', name: 'Activity Type', resizable: true,},
-  {key: 'name', name: 'name', resizable: true,},
+const taskColumns: readonly Column<any>[] = ([
+  {key: 'id', name: 'ID', resizable: true, width: 80},
+  {key: 'name', name: '节点', resizable: true, width: 200, renderCell: (data: any) => {
+    return <span>{data.row.name}({data.row.taskDefinitionKey})</span>
+  }},
+  {key: 'assignee', name: '处理人', resizable: true, width: 80},
+  {key: 'startTime', name: '开始时间', resizable: true, width: 150, renderCell: (data: any) => {
+    return <span>{dayjs(data.row.startTime).format('YYYY-MM-DD HH:mm:ss')}</span>
+  }},
+  {key: 'endTime', name: '结束时间', resizable: true, width: 150, renderCell: (data: any) => {
+    if (!data.row.endTime) {
+      return <span></span>
+    }
+    return <span>{dayjs(data.row.endTime).format('YYYY-MM-DD HH:mm:ss')}</span>
+  }},
+  {key: 'durationInMillis', name: '持续时间(秒)', resizable: true, renderCell: (data: any) => {
+    let duration = data.row.durationInMillis;
+    if (!duration) {
+      return <span></span>
+    }
+    let seconds = Math.floor(duration / 1000);
+    return <span>{seconds}</span>
+  }},
 ]);
 
 
@@ -24,9 +42,8 @@ export const ProcessInstanceViewer = (props: IProcessInstanceViewerProps) => {
 
   const [selectedTabValue, setSelectedTabValue] = useState<TabValue>("diagram");
   const [processInstanceId, setProcessInstanceId] = useState<string | undefined>(props.processInstanceId);
-  const [processDefinitionId, setProcessDefinitionId] = useState<string | undefined>(props.processDefinitionId);
   const [diagramXml, setDiagramXml] = useState<string | undefined>(undefined);
-  const [activityInstances, setActivityInstances] = useState<any[] | undefined>(undefined);
+  const [processInstanceInfo, setProcessInstanceInfo] = useState<any | undefined>(undefined);
 
   const handleTabSelect = (event: SelectTabEvent, data: SelectTabData) => {
     event.stopPropagation();
@@ -35,24 +52,14 @@ export const ProcessInstanceViewer = (props: IProcessInstanceViewerProps) => {
   };
 
   useEffect(() => {
-    if (!props.processDefinitionId) {
-      return;
-    }
-    processDefinitionXmlById(props.processDefinitionId).then((data) => {
-      setDiagramXml(data.bpmn20Xml);
-    });
-  }, [props.processDefinitionId]);
-
-  useEffect(() => {
     if (!props.processInstanceId) {
       return;
     }
-    getActivityInstance(props.processInstanceId).then((data) => {
-      if (data.childActivityInstances) {
-        setActivityInstances(data.childActivityInstances);
-      }
+    getProcessInstanceInfo(props.processInstanceId).then((data: any) => {
+      setProcessInstanceInfo(data);
+      setDiagramXml(data.bpmn20Xml);
     });
-  }, [props.processInstanceId])
+  }, [props.processInstanceId]);
 
   return (<div>
     <TabList defaultSelectedValue="diagram" selectedValue={selectedTabValue} onTabSelect={handleTabSelect} size="small">
@@ -62,18 +69,16 @@ export const ProcessInstanceViewer = (props: IProcessInstanceViewerProps) => {
       <Tab icon={<TaskListLtr20Regular />} value="activties">
         节点
       </Tab>
-      <Tab icon={<PointScan20Regular />} value="operations">
-        操作
-      </Tab>
     </TabList>
     <div style={{width: '800px', height: '800px'}}>
-      {selectedTabValue === "diagram" && diagramXml && <BpmnViewer diagramXml={diagramXml} activityInstances={activityInstances}/>}
+      {selectedTabValue === "diagram" && diagramXml && <BpmnViewer diagramXml={diagramXml} historicTasks={processInstanceInfo.historicTasks} 
+      currentTasks={processInstanceInfo.currentTasks} />}
       {selectedTabValue === "activties" && <div>
         <DataGrid
           className="fill-grid rdg-light"
           style={{ height: "100%" }}
-          columns={activitiesColumns}
-          rows={activityInstances as any}
+          columns={taskColumns}
+          rows={processInstanceInfo.historicTasks as any}
           rowHeight={30}
           rowKeyGetter={(r: any) => r.key}
         />

@@ -14,7 +14,7 @@ import type { Column } from 'react-data-grid';
 import DataGrid from 'react-data-grid';
 import { FormDesigner } from '../components/form/form-designer.component';
 import { Page } from '../services/api.service';
-import { FormDef, FormDefDetail, createOrModifyFormDef, getFormDefs } from '../services/form.service';
+import { FormDef, FormDefDetail, createOrModifyFormDef, getFormDefDetailsByFormDefId, getFormDefs } from '../services/form.service';
 import { generateId } from '../utils/generate-id.util';
 
 const DeployIcon = bundleIcon(Rocket24Filled, Rocket24Regular);
@@ -169,10 +169,12 @@ export const FormPage = () => {
   }
 
   const handleEdit = (row: FormDef) => {
-    const selected = {...row.formDefDetails[0], formDefId: row.id};
-    setSelectedFormDefDetail(selected);
-    setSelectedFormDefDetails(row.formDefDetails);
-    setIsOpen(true);
+    getFormDefDetailsByFormDefId(row.id).then((data) => {
+      const selected = {...data[0], formDefId: row.id};
+      setSelectedFormDefDetail(selected);
+      setSelectedFormDefDetails(data);
+      setIsOpen(true);
+    });
   };
 
   const handleChangeVersion = (_: SelectionEvents, data: OptionOnSelectData) => {

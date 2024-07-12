@@ -19,7 +19,7 @@ import { Form } from "@rjsf/fluentui-rc";
 import validator from '@rjsf/validator-ajv8';
 import { useCallback, useEffect, useState } from 'react';
 import { useMe } from '../../context/MeContexnt';
-import { FormDefDetail, getFormDataByBusinessId, getFormDefDetailLatest } from '../../services/form.service';
+import { FormDefDetail, getFormDataByBusinessId, getFormDefDetailLatest, getFormDefDetails } from '../../services/form.service';
 import { WorkflowApproval, WorkflowApprovalProcess, processWorkflowApproval } from '../../services/workflow-approval.service';
 import { processDefinitionStatisticsGrouped } from "../../services/workflow.service";
 
@@ -70,7 +70,7 @@ export const WorkflowApprovalFormProcess = (props: IWorkflowApprovalFormProcessP
     setSelectedFormDefDetail({ id: '', key: '', name: '', schemas: '', enable: true });
     setSelectedProcessDefinition({ id: "", name: "" });
     if (!props.isOpen) return;
-    getFormDefDetailLatest()
+    getFormDefDetails()
       .then((data) => {
         setFormDefDetails(data);
         return processDefinitionStatisticsGrouped();
@@ -144,16 +144,17 @@ export const WorkflowApprovalFormProcess = (props: IWorkflowApprovalFormProcessP
   }, [selectedFormDefDetail, formData]);
 
   const handleSubmit = () => {
-    setInProcess(true);
     if (!selectedWorkflowApproval.processInstanceId 
-        || !selectedWorkflowApproval.taskId) {
+        || !selectedWorkflowApproval.currentTask
+        || !selectedWorkflowApproval.currentTask.id) {
       return;
     }
+    setInProcess(true);
     let processData: WorkflowApprovalProcess = {
       id: selectedWorkflowApproval.id,
       processDefinitionId: selectedProcessDefinition.id,
       processInstanceId: selectedWorkflowApproval.processInstanceId,
-      taskId: selectedWorkflowApproval.taskId,
+      taskId: selectedWorkflowApproval.currentTask.id,
     }
     
     processWorkflowApproval(processData)

@@ -32,8 +32,8 @@ public class GroupUser implements Serializable {
     private User user;
 
     public GroupUser(String groupId, String userId) {
-        this.group = group;
-        this.user = user;
+        this.group = new Group(groupId);
+        this.user = new User(userId);
         this.id = new GroupUserId(groupId, userId);
     }
 

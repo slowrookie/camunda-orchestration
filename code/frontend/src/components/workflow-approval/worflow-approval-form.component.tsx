@@ -19,7 +19,7 @@ import { Form } from "@rjsf/fluentui-rc";
 import validator from '@rjsf/validator-ajv8';
 import { useCallback, useEffect, useState } from 'react';
 import { useMe } from '../../context/MeContexnt';
-import { FormDefDetail, getFormDataByBusinessId, getFormDefDetailLatest } from '../../services/form.service';
+import { FormDefDetail, getFormDataByBusinessId, getFormDefDetailLatest, getFormDefDetails } from '../../services/form.service';
 import { WorkflowApproval, startWorkflowApproval } from '../../services/workflow-approval.service';
 import { processDefinitionStatisticsGrouped } from "../../services/workflow.service";
 
@@ -70,7 +70,7 @@ export const WorkflowApprovalForm = (props: IWorkflowApprovalFormProps) => {
     setSelectedFormDefDetail({ id: '', key: '', name: '', schemas: '', enable: true });
     setSelectedProcessDefinition({ id: "", name: "" });
     if (!props.isOpen) return;
-    getFormDefDetailLatest()
+    (props.readonly ? getFormDefDetails() : getFormDefDetailLatest())
       .then((data) => {
         setFormDefDetails(data);
         return processDefinitionStatisticsGrouped();

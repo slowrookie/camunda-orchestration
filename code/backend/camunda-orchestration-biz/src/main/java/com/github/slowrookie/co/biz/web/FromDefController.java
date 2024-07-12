@@ -33,6 +33,16 @@ public class FromDefController {
         return ResponseEntity.ok(formDefService.findFormDefDetailLatest());
     }
 
+    @GetMapping("/form-def/details")
+    private ResponseEntity<Iterable<FormDefDetail>> formDefDetail() {
+        return ResponseEntity.ok(formDefService.findFormDefDetails());
+    }
+
+    @GetMapping("/form-def/{formDefId}/details")
+    private ResponseEntity<Iterable<FormDefDetail>> formDefDetail(@PathVariable("formDefId") String formDefId) {
+        return ResponseEntity.ok(formDefService.findFormDefDetailByFormDefId(formDefId));
+    }
+
     @PutMapping("/form-def")
     private ResponseEntity<FormDefDetail> modify(@RequestBody @Valid FormDefDetailCreateDto dto) {
         FormDef formDef = new FormDef();

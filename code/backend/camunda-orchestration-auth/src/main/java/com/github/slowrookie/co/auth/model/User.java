@@ -30,5 +30,9 @@ public class User implements Serializable {
     @Column(nullable = false)
     private String password;
 
+    public User(String id) {
+        this.id = id;
+    }
+
 
 }

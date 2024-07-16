@@ -1,14 +1,17 @@
 package com.github.slowrookie.co.biz.dto;
 
+import com.github.slowrookie.co.biz.model.FormData;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Data
-public class WorkflowApprovalProcessDto {
+public class WorkflowApprovalProcess {
 
     @NotEmpty
     @NotNull
@@ -26,6 +29,8 @@ public class WorkflowApprovalProcessDto {
     @NotEmpty
     private String taskId;
 
-    private Map<String, String> variables = new HashMap<>();
+    private List<FormDefDetailWithData> formData = new ArrayList<>();
+
+    private List<FormDefDetailWithData> newFormData = new ArrayList<>();
 
 }

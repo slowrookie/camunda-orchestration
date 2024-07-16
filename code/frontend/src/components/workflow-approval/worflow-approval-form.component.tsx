@@ -64,12 +64,12 @@ export const WorkflowApprovalForm = (props: IWorkflowApprovalFormProps) => {
   const [formData, setFormData] = useState<any>({});
 
   useEffect(() => {
+    if (!props.isOpen) return;
     setIsOpen(props.isOpen);
     setIsDataReady(false);
     setSelectedWorkflowApproval(props.workflowApproval || { id: '', title: '' });
     setSelectedFormDefDetail({ id: '', key: '', name: '', schemas: '', enable: true });
     setSelectedProcessDefinition({ id: "", name: "" });
-    if (!props.isOpen) return;
     (props.readonly ? getFormDefDetails() : getFormDefDetailLatest())
       .then((data) => {
         setFormDefDetails(data);

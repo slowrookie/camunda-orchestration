@@ -1,6 +1,8 @@
 package com.github.slowrookie.co.biz.service;
 
-import com.github.slowrookie.co.biz.dto.WorkflowApprovalStartDto;
+import com.github.slowrookie.co.biz.dto.FormDefDetailWithData;
+import com.github.slowrookie.co.biz.dto.WorkflowApprovalStart;
+import com.github.slowrookie.co.biz.model.FormData;
 import com.github.slowrookie.co.biz.model.WorkflowApproval;
 import com.github.slowrookie.co.dubbo.model.CamundaTask;
 import org.springframework.data.domain.Page;
@@ -16,9 +18,11 @@ public interface IWorkflowApprovalService {
 
     Page<WorkflowApproval> findAllPending(String userId, Set<String> processInstanceIds, PageRequest of);
 
-    void start(WorkflowApprovalStartDto dto);
+    void start(WorkflowApprovalStart dto);
 
-    void process(String userId, WorkflowApproval workflowApproval, CamundaTask task, Map<String, String> variables);
+    void process(String userId, WorkflowApproval workflowApproval, CamundaTask task,
+                 List<FormDefDetailWithData> formData,
+                 List<FormDefDetailWithData> newFormData);
 
     WorkflowApproval getById(String id);
 

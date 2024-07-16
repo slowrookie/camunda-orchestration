@@ -5,9 +5,9 @@ import com.github.slowrookie.auth.dubbo.api.IAuthUserService;
 import com.github.slowrookie.auth.dubbo.model.AuthGroup;
 import com.github.slowrookie.auth.dubbo.model.AuthUser;
 import com.github.slowrookie.co.biz.dto.ProcessInstanceInfo;
-import com.github.slowrookie.co.biz.dto.WorkflowApprovalProcessDto;
-import com.github.slowrookie.co.biz.dto.WorkflowApprovalResDto;
-import com.github.slowrookie.co.biz.dto.WorkflowApprovalStartDto;
+import com.github.slowrookie.co.biz.dto.WorkflowApprovalProcess;
+import com.github.slowrookie.co.biz.dto.WorkflowApprovalRes;
+import com.github.slowrookie.co.biz.dto.WorkflowApprovalStart;
 import com.github.slowrookie.co.biz.model.WorkflowApproval;
 import com.github.slowrookie.co.biz.service.IWorkflowApprovalService;
 import com.github.slowrookie.co.dubbo.api.ICamundaHistoryService;
@@ -49,7 +49,7 @@ public class WorkflowApprovalController {
     private ICamundaHistoryService camundaHistoryService;
 
     @GetMapping("/workflow-approval")
-    public Page<WorkflowApprovalResDto> pages(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+    public Page<WorkflowApprovalRes> pages(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
         PageRequest pageRequest = PageRequest.of(page, size);
         // order by created time desc
         pageRequest = pageRequest.withSort(Sort.Direction.DESC, "createdDate");
@@ -61,7 +61,7 @@ public class WorkflowApprovalController {
         List<CamundaProcessDefinition> processDefinitions = camundaRepositoryService.getProcessDefinitionByIds(processDefinitionIds);
 
         return workflowApprovals.map(wa -> {
-            WorkflowApprovalResDto resDto = new WorkflowApprovalResDto();
+            WorkflowApprovalRes resDto = new WorkflowApprovalRes();
             BeanUtils.copyProperties(wa, resDto);
             processInstances.stream().filter(p -> p.getId().equals(wa.getProcessInstanceId())).findFirst().ifPresent(resDto::setProcessInstance);
             processDefinitions.stream().filter(p -> p.getId().equals(wa.getProcessDefinitionId())).findFirst().ifPresent(resDto::setProcessDefinition);
@@ -70,7 +70,7 @@ public class WorkflowApprovalController {
     }
 
     @GetMapping("/workflow-approval/pending")
-    public Page<WorkflowApprovalResDto> pendingPages(@RequestParam(defaultValue = "0") int page,
+    public Page<WorkflowApprovalRes> pendingPages(@RequestParam(defaultValue = "0") int page,
                                                   @RequestParam(defaultValue = "10") int size, Authentication auth) {
         String userId = auth.getName();
         List<String> groupIds = userService.getGroups(userId).stream().map(AuthGroup::getId).toList();
@@ -94,7 +94,7 @@ public class WorkflowApprovalController {
 
 
         return workflowApprovals.map(wa -> {
-            WorkflowApprovalResDto dto = new WorkflowApprovalResDto();
+            WorkflowApprovalRes dto = new WorkflowApprovalRes();
             BeanUtils.copyProperties(wa, dto);
             tasks.stream().filter(t -> t.getProcessInstanceId().equals(wa.getProcessInstanceId())).findFirst().ifPresent(dto::setCurrentTask);
             processInstances.stream().filter(p -> p.getId().equals(wa.getProcessInstanceId())).findFirst().ifPresent(dto::setProcessInstance);
@@ -104,12 +104,12 @@ public class WorkflowApprovalController {
     }
 
     @PostMapping("/workflow-approval/start")
-    public void start(@RequestBody @Valid WorkflowApprovalStartDto dto) {
+    public void start(@RequestBody @Valid WorkflowApprovalStart dto) {
         workflowApprovalService.start(dto);
     }
 
     @PostMapping("/workflow-approval/process")
-    public void process(@RequestBody @Valid WorkflowApprovalProcessDto dto, Authentication auth) {
+    public void process(@RequestBody @Valid WorkflowApprovalProcess dto, Authentication auth) {
         CamundaTask task = camundaTaskService.getTaskById(dto.getTaskId());
         if (task == null) {
             throw new RuntimeException("task not found");
@@ -122,7 +122,7 @@ public class WorkflowApprovalController {
 
         String userId = auth.getName();
 
-        workflowApprovalService.process(userId, workflowApproval, task, dto.getVariables());
+        workflowApprovalService.process(userId, workflowApproval, task, dto.getFormData(), dto.getNewFormData());
     }
 
     @GetMapping("/workflow-approval/process-instance-info/{processInstanceId}")
@@ -144,8 +144,13 @@ public class WorkflowApprovalController {
 
         List<CamundaHistoricTaskInstance> historicTaskInstances = camundaHistoryService.getHistoricTaskInstance(processInstanceId);
         if (!CollectionUtils.isEmpty(historicTaskInstances)) {
-            info.setHistoricTasks(historicTaskInstances);
+            info.setUserTasks(historicTaskInstances);
             userIds.addAll(historicTaskInstances.stream().map(CamundaHistoricTaskInstance::getAssignee).filter(Objects::nonNull).collect(Collectors.toSet()));
+        }
+
+        List<CamundaHistoricActivityInstance> historicActivityInstances = camundaHistoryService.getHistoricActivityInstance(processInstanceId);
+        if (!CollectionUtils.isEmpty(historicActivityInstances)) {
+            info.setActivityInstances(historicActivityInstances);
         }
 
         List<CamundaTask> currentTasks = camundaTaskService.getTasksByProcessInstanceId(processInstanceId);

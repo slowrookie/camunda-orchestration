@@ -6,7 +6,7 @@ import lombok.Data;
 import java.util.Map;
 
 @Data
-public class WorkflowApprovalStartDto {
+public class WorkflowApprovalStart {
 
     @NotNull
     private String title;

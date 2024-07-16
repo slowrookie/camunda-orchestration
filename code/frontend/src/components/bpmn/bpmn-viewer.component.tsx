@@ -1,6 +1,11 @@
 import { makeStyles, mergeClasses } from "@fluentui/react-components";
 import { ImportXMLResult, SaveSVGResult, SaveXMLOptions, SaveXMLResult } from 'bpmn-js/lib/BaseViewer';
 import BaseViewer from 'camunda-bpmn-js/lib/camunda-platform/Viewer';
+// @ts-ignore
+import Minimap from 'diagram-js-minimap';
+import MoveCanvas from 'diagram-js/lib/navigation/movecanvas'; // 导入 MoveCanvas 模块
+import ZoomScroll from 'diagram-js/lib/navigation/zoomscroll'; // 导入 ZoomScroll 模块
+
 import { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
 import { translateModule } from '../../i18n/bpmn/translate.provider';
 // @ts-ignore
@@ -13,7 +18,8 @@ export type IBpmnViewerProps = {
   url?: string;
   diagramXml?: string;
   currentTasks?: any[];
-  historicTasks?: any[];
+  userTasks?: any[];
+  activityInstances?: any[];
 }
 
 export interface IBpmnViewerRef {
@@ -58,6 +64,9 @@ export const BpmnViewer = forwardRef<IBpmnViewerRef, IBpmnViewerProps>((props, r
       },
       additionalModules: [
         translateModule,
+        Minimap,
+        MoveCanvas,
+        ZoomScroll
       ],
       keyboard: {
         bindTo: window
@@ -76,10 +85,10 @@ export const BpmnViewer = forwardRef<IBpmnViewerRef, IBpmnViewerProps>((props, r
         }
         var canvas: any = bpmnViewer.current.get('canvas');
         var overlays: any = bpmnViewer.current.get('overlays');
-        canvas.zoom('fit-viewport');
-        if (props.historicTasks) {
+        // canvas.zoom('fit-viewport');
+        if (props.userTasks) {
           
-          props.historicTasks.forEach((ai: any) => {
+          props.userTasks.forEach((ai: any) => {
             if(ai.endTime) {
               canvas.addMarker(ai.taskDefinitionKey, 'highlight-completed');
               const keyValuePairs: string[] = [];
@@ -122,6 +131,31 @@ export const BpmnViewer = forwardRef<IBpmnViewerRef, IBpmnViewerProps>((props, r
               }
               const info: string = keyValuePairs.join(' ');
               overlays.add(ai.taskDefinitionKey, 'note', {
+                position: {
+                  bottom: -5,
+                  right: 110,
+                },
+                html: `<div class="diagram-note">${info}</div>`
+              });
+          });
+        }
+        if (props.activityInstances && props.activityInstances.length) {
+          // exclude currentTasks
+          let activityInstances = props.activityInstances.filter((ai: any) => {
+            return !props.userTasks || !props.userTasks.find((ct: any) => ct.taskDefinitionKey === ai.activityId);
+          });
+          activityInstances.forEach((ai: any) => {
+            canvas.addMarker(ai.activityId, 'highlight-completed');
+              const keyValuePairs: string[] = [];
+              if (ai.startTime) {
+                keyValuePairs.push(`<div><strong>开始:</strong> ${dayjs(ai.startTime).format('YYYY-MM-DD HH:mm:ss')}</div>`);
+              }
+              if (ai.endTime) {
+                keyValuePairs.push(`<div><strong>结束:</strong> ${dayjs(ai.endTime).format('YYYY-MM-DD HH:mm:ss')}</div>`);
+              }
+
+              const info: string = keyValuePairs.join(' ');
+              overlays.add(ai.activityId, 'note', {
                 position: {
                   bottom: -5,
                   right: 110,

@@ -1,7 +1,7 @@
 package com.github.slowrookie.co.biz.web;
 
-import com.github.slowrookie.co.biz.dto.FormDefDetailAndDataDto;
-import com.github.slowrookie.co.biz.model.FormData;
+import com.github.slowrookie.co.biz.dto.FormDataConvert;
+import com.github.slowrookie.co.biz.dto.FormDefDetailWithData;
 import com.github.slowrookie.co.biz.model.FormDefDetail;
 import com.github.slowrookie.co.biz.service.IFormDataService;
 import jakarta.annotation.Resource;
@@ -20,10 +20,10 @@ public class FormDataController {
     private IFormDataService formDataService;
 
     @GetMapping("/from-data/{businessId}")
-    private List<FormDefDetailAndDataDto> getFormDefDetailByBusinessId(@PathVariable String businessId) {
-        Map<FormDefDetail, List<FormData>> mapped = formDataService.findDataMapByBusinessId(businessId);
+    private List<FormDefDetailWithData> getFormDefDetailByBusinessId(@PathVariable String businessId) {
+        Map<FormDefDetail, List<FormDataConvert>> mapped = formDataService.findDataMapByBusinessId(businessId);
         return mapped.entrySet().stream().map(entry -> {
-            FormDefDetailAndDataDto dto = new FormDefDetailAndDataDto();
+            FormDefDetailWithData dto = new FormDefDetailWithData();
             dto.setDef(entry.getKey());
             dto.setData(entry.getValue());
             return dto;

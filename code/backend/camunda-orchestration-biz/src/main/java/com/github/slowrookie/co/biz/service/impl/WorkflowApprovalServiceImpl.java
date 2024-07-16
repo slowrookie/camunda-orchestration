@@ -2,13 +2,16 @@ package com.github.slowrookie.co.biz.service.impl;
 
 import com.github.slowrookie.auth.dubbo.api.IAuthUserService;
 import com.github.slowrookie.auth.dubbo.model.AuthUser;
-import com.github.slowrookie.co.biz.dto.WorkflowApprovalStartDto;
+import com.github.slowrookie.co.biz.dto.FormDataConvert;
+import com.github.slowrookie.co.biz.dto.FormDefDetailWithData;
+import com.github.slowrookie.co.biz.dto.WorkflowApprovalStart;
 import com.github.slowrookie.co.biz.model.FormData;
 import com.github.slowrookie.co.biz.model.FormDefDetail;
 import com.github.slowrookie.co.biz.model.WorkflowApproval;
 import com.github.slowrookie.co.biz.repository.IFormDataRepository;
 import com.github.slowrookie.co.biz.repository.IFormDefDetailRepository;
 import com.github.slowrookie.co.biz.repository.IWorkflowApprovalRepository;
+import com.github.slowrookie.co.biz.service.IFormDataService;
 import com.github.slowrookie.co.biz.service.IWorkflowApprovalService;
 import com.github.slowrookie.co.dubbo.api.ICamundaHistoryService;
 import com.github.slowrookie.co.dubbo.api.ICamundaRuntimeService;
@@ -24,11 +27,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -40,6 +41,8 @@ public class WorkflowApprovalServiceImpl implements IWorkflowApprovalService {
     private IFormDefDetailRepository formDefDetailRepository;
     @Resource
     private IFormDataRepository formDataRepository;
+    @Resource
+    private IFormDataService formDataService;
     @DubboReference
     private IAuthUserService userService;
     @DubboReference
@@ -103,7 +106,7 @@ public class WorkflowApprovalServiceImpl implements IWorkflowApprovalService {
 
     @Transactional
     @Override
-    public void start(WorkflowApprovalStartDto dto) {
+    public void start(WorkflowApprovalStart dto) {
         // create workflow approval
         WorkflowApproval wa = new WorkflowApproval();
         wa.setTitle(dto.getTitle());
@@ -140,16 +143,59 @@ public class WorkflowApprovalServiceImpl implements IWorkflowApprovalService {
 
     @Transactional
     @Override
-    public void process(String userId, WorkflowApproval workflowApproval, CamundaTask task, Map<String, String> variables) {
+    public void process(String userId, WorkflowApproval wa, CamundaTask task, List<FormDefDetailWithData> formData,
+                        List<FormDefDetailWithData> newFormData) {
         // convert variables
-        Map<String, Object> variablesMap = variables.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        Map<String, Object> variablesMap = new HashMap<>();
+
+        // parse form data
+        if (!CollectionUtils.isEmpty(formData)) {
+            for (FormDefDetailWithData fddwd : formData) {
+                if (null == fddwd.getDef() || null == fddwd.getDef().getId()) {
+                    continue;
+                }
+                if (CollectionUtils.isEmpty(fddwd.getData())) {
+                    continue;
+                }
+                FormDefDetail fdd = formDefDetailRepository.findById(fddwd.getDef().getId()).orElse(null);
+                if (null == fdd) {
+                    continue;
+                }
+                formDataRepository.saveAll(fddwd.getData().stream().map(FormDataConvert::toFormData).collect(Collectors.toList()));
+
+                formDataService.convertType(fdd, fddwd.getData());
+                fddwd.getData().forEach(fd -> {
+                    variablesMap.put(fd.getKey(), fd.getValue());
+                });
+
+            }
+        }
+        if (!CollectionUtils.isEmpty(newFormData)) {
+            for (FormDefDetailWithData fddwd : newFormData) {
+                if (null == fddwd.getDef() || null == fddwd.getDef().getId()) {
+                    continue;
+                }
+                if (CollectionUtils.isEmpty(fddwd.getData())) {
+                    continue;
+                }
+                FormDefDetail fdd = formDefDetailRepository.findById(fddwd.getDef().getId()).orElse(null);
+                if (null == fdd) {
+                    continue;
+                }
+                formDataRepository.saveAll(fddwd.getData().stream().map(FormDataConvert::toFormData).collect(Collectors.toList()));
+                formDataService.convertType(fdd, fddwd.getData());
+                fddwd.getData().forEach(fd -> {
+                    variablesMap.put(fd.getKey(), fd.getValue());
+                });
+            }
+        }
 
         camundaTaskService.completeWithUser(userId, task.getId(), variablesMap);
 
         // update state
-        CamundaHistoricProcessInstance historicProcessInstance = historyService.getHistoricProcessInstanceById(workflowApproval.getProcessInstanceId());
-        workflowApproval.setProcessInstanceState(historicProcessInstance.getState());
-        workflowApprovalRepository.save(workflowApproval);
+        CamundaHistoricProcessInstance historicProcessInstance = historyService.getHistoricProcessInstanceById(wa.getProcessInstanceId());
+        wa.setProcessInstanceState(historicProcessInstance.getState());
+        workflowApprovalRepository.save(wa);
     }
 
 }

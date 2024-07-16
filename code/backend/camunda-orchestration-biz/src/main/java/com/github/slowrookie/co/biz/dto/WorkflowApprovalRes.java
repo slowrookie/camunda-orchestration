@@ -10,7 +10,7 @@ import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class WorkflowApprovalResDto extends WorkflowApproval {
+public class WorkflowApprovalRes extends WorkflowApproval {
 
     private CamundaTask currentTask;
 

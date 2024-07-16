@@ -30,6 +30,9 @@ public class FormDef extends AbstractPersistableUuid implements Serializable{
     @Column(nullable = false, unique = true)
     private String key;
 
+    @Column(nullable = false)
+    private String name;
+
     @Version
     @Column(nullable = false)
     private Integer rev;

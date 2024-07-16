@@ -65,16 +65,6 @@ const PAGE_SIZE = 100;
 export const WorkflowApprovalPendingPage = () => {
   const styles = useStyles();
 
-  // create
-  const [workflowApprovalFormProps, setWorkflowApprovalFormProps] = useState<IWorkflowApprovalFormProps>({
-    isOpen: false,
-    readonly: false,
-    onSubmitted: () => { setPageRequest({ number: 0, size: PAGE_SIZE }); },
-    onOpenChange: (open: boolean) => { 
-      setWorkflowApprovalFormProps({ ...workflowApprovalFormProps, isOpen: open });
-    }
-  });
-
   // process
   const [workflowApprovalFormProcessProps, setWorkflowApprovalFormProcessProps] = useState<IWorkflowApprovalFormProps>({
     isOpen: false,
@@ -99,7 +89,7 @@ export const WorkflowApprovalPendingPage = () => {
     {
       key: 'title', name: '标题', resizable: true, renderCell: (data: any) => {
         return <Link onClick={() => {
-          setWorkflowApprovalFormProps({ ...workflowApprovalFormProps, isOpen: true, readonly: true, workflowApproval: data.row });
+          setWorkflowApprovalFormProcessProps({ ...workflowApprovalFormProcessProps, isOpen: true, readonly: true, workflowApproval: data.row });
          }}>{data.row.title}</Link>
       }
     },
@@ -173,8 +163,6 @@ export const WorkflowApprovalPendingPage = () => {
 
   return (<>
     <div className={styles.root}>
-
-      <WorkflowApprovalForm {...workflowApprovalFormProps}/>
 
       <WorkflowApprovalFormProcess {...workflowApprovalFormProcessProps}/>
 

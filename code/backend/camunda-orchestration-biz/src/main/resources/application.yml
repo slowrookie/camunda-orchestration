@@ -37,6 +37,10 @@ dubbo:
     name: tri
     port: 50053
 
+camunda.bpm.client:
+  worker-id: spring-boot-worker-biz
+  base-url: http://localhost:9090/workflow
+  lock-duration: 20000
 
 logging:
   level:

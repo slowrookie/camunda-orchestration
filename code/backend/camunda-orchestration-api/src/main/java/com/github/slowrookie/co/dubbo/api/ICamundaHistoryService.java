@@ -1,6 +1,7 @@
 package com.github.slowrookie.co.dubbo.api;
 
 
+import com.github.slowrookie.co.dubbo.model.CamundaHistoricActivityInstance;
 import com.github.slowrookie.co.dubbo.model.CamundaHistoricProcessInstance;
 import com.github.slowrookie.co.dubbo.model.CamundaHistoricTaskInstance;
 
@@ -14,4 +15,7 @@ public interface ICamundaHistoryService {
     List<CamundaHistoricProcessInstance> getHistoricProcessInstanceByIds(Set<String> processInstanceIds);
 
     List<CamundaHistoricTaskInstance> getHistoricTaskInstance(String processInstanceId);
+
+    List<CamundaHistoricActivityInstance> getHistoricActivityInstance(String processInstanceId);
+
 }

@@ -103,9 +103,7 @@ export const FormPage = () => {
         return <Link onClick={() => handleEdit(data.row)}>{data.row.key}</Link>
       }
     },
-    { key: 'name', name: '表单名称', resizable: true, renderCell: (data: any) => {
-      return data.row.formDefDetails && data.row?.formDefDetails[0]?.name;
-    }},
+    { key: 'name', name: '表单名称', resizable: true},
     { key: 'rev', name: '版本', width: 50, resizable: true },
     {
       key: 'status', name: '状态', width: 50, cellClass: styles.dataGridCellAlignCenter,
@@ -140,8 +138,9 @@ export const FormPage = () => {
   let handleSave = (event: MouseEvent) => {
     event.preventDefault();
     setDeploying(true);
-    createOrModifyFormDef(selectedFormDefDetail).then(() => {
+    createOrModifyFormDef(selectedFormDefDetail).then((data: FormDefDetail) => {
       setPageRequest({ number: 0, size: PAGE_SIZE });
+      setSelectedFormDefDetail(data);
       dispatchToast(
         <Toast>
           <ToastTitle>{selectedFormDefDetail.formDefId ? '编辑' : '创建'}成功</ToastTitle>
@@ -165,7 +164,8 @@ export const FormPage = () => {
   const handleCreate = (event: MouseEvent) => {
     event.preventDefault();
     setIsOpen(true);
-    setSelectedFormDefDetail({...selectedFormDefDetail, key: `form-${generateId()}`});
+    setSelectedFormDefDetail({ id: '', key: `form-${generateId()}`, name: '', schemas: '', enable: true, version: '' });
+    setSelectedFormDefDetails([]);
   }
 
   const handleEdit = (row: FormDef) => {
@@ -199,12 +199,13 @@ export const FormPage = () => {
               <DrawerHeaderTitle>表单设计</DrawerHeaderTitle>
 
               <Field required style={{ paddingLeft: tokens.spacingHorizontalS }}>
+                <Input placeholder='Key'
+                  readOnly
+                  value={selectedFormDefDetail.key}/>
+              </Field>
+
+              <Field required style={{ paddingLeft: tokens.spacingHorizontalS }}>
                 <Input placeholder='名称'
-                  contentBefore={
-                    <Subtitle2>
-                      {selectedFormDefDetail.key}
-                    </Subtitle2>
-                  }
                   value={selectedFormDefDetail.name}
                   onChange={(_, v) => setSelectedFormDefDetail({ ...selectedFormDefDetail, name: v.value })} />
               </Field>
@@ -238,7 +239,7 @@ export const FormPage = () => {
         <DrawerFooter className={styles.formDesignerFooter}>
           <Toolbar>
             <ToolbarButton appearance='primary' icon={<>{deploying ? <Spinner size='tiny' /> : <DeployIcon />}</>}
-              disabled={deploying}
+              disabled={deploying || !selectedFormDefDetail.name}
               onClick={handleSave}
             >{selectedFormDefDetail.id ? '修订' : '创建'}</ToolbarButton>
           </Toolbar>

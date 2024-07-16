@@ -8,8 +8,12 @@ import java.util.List;
 
 public interface IFormDataRepository extends JpaRepository<FormData, String>, JpaSpecificationExecutor<FormData> {
 
-    List<FormData> findByFormDefDetailIdAndBusinessId(String formDetailId, String businessId);
-
     List<FormData> findByBusinessId(String businessId);
+
+    List<FormData> findByProcessInstanceIdAndTaskId(String processInstanceId, String taskId);
+
+    boolean existsByBusinessIdAndFormDefDetailId(String businessId, String formDefDetailId);
+
+    boolean existsByBusinessIdAndTaskIdAndFormDefDetailId(String businessId, String taskId, String formDefDetailId);
 
 }

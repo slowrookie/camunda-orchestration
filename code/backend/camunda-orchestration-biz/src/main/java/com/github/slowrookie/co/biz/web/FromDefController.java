@@ -1,6 +1,6 @@
 package com.github.slowrookie.co.biz.web;
 
-import com.github.slowrookie.co.biz.dto.FormDefDetailCreateDto;
+import com.github.slowrookie.co.biz.dto.FormDefDetailCreate;
 import com.github.slowrookie.co.biz.model.FormDef;
 import com.github.slowrookie.co.biz.model.FormDefDetail;
 import com.github.slowrookie.co.biz.service.IFormDefService;
@@ -44,17 +44,20 @@ public class FromDefController {
     }
 
     @PutMapping("/form-def")
-    private ResponseEntity<FormDefDetail> modify(@RequestBody @Valid FormDefDetailCreateDto dto) {
-        FormDef formDef = new FormDef();
+    private ResponseEntity<FormDefDetail> modify(@RequestBody @Valid FormDefDetailCreate dto) {
+        FormDef formDef = null;
         if (StringUtils.hasLength(dto.getFormDefId())) {
             formDef = formDefService.get(dto.getFormDefId());
-        } else {
+        } else if (StringUtils.hasLength(dto.getKey())) {
+            formDef = formDefService.getByKey(dto.getKey());
+        }
+        if (null == formDef) {
+            formDef = new FormDef();
             formDef.setRev(0);
             formDef.setKey(dto.getKey());
         }
         FormDefDetail detail = new FormDefDetail();
         BeanUtils.copyProperties(dto, detail);
-        detail.setFormDefId(formDef.getId());
         detail = formDefService.create(formDef, detail);
         return ResponseEntity.ok(detail);
     }

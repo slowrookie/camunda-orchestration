@@ -19,7 +19,9 @@ export type WorkflowApprovalProcess = {
   id: string,
   processDefinitionId?: string,
   processInstanceId: string,
-  taskId: string
+  taskId: string,
+  formData: any[],
+  newFormData: any[]
 }
 
 export const getWorkflowApprovals = async (pageRequest: PageRequest): Promise<Page<WorkflowApproval>> => {

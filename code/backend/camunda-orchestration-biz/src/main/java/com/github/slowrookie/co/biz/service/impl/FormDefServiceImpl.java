@@ -33,25 +33,21 @@ public class FormDefServiceImpl implements IFormDefService {
         return formDefRepository.findById(id).orElse(null);
     }
 
+    @Override
+    public FormDef getByKey(String key) {
+        return formDefRepository.findByKey(key);
+    }
+
     @Transactional
     @Override
     public FormDefDetail create(FormDef formDef, FormDefDetail formDefDetail) {
+        formDef.setName(formDefDetail.getName());
         formDef.setLastModifiedDate(Instant.now());
         formDef.setRev(formDef.getRev() + 1);
         FormDef fd = formDefRepository.save(formDef);
         formDefDetail.setFormDefId(fd.getId());
         formDefDetail.setVersion(fd.getRev());
         return formDefDetailRepository.save(formDefDetail);
-    }
-
-    @Override
-    public FormDefDetail getFormDetailById(String id) {
-        return formDefDetailRepository.findById(id).orElse(null);
-    }
-
-    @Override
-    public FormDefDetail saveFormDefDetail(FormDefDetail formDef) {
-        return formDefDetailRepository.save(formDef);
     }
 
     @Override

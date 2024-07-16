@@ -15,13 +15,11 @@ import {
   tokens
 } from "@fluentui/react-components";
 import { Dismiss20Regular, Play20Regular } from '@fluentui/react-icons';
-import { Form } from "@rjsf/fluentui-rc";
-import validator from '@rjsf/validator-ajv8';
-import { useCallback, useEffect, useState } from 'react';
-import { useMe } from '../../context/MeContexnt';
-import { FormDefDetail, getFormDataByBusinessId, getFormDefDetailLatest, getFormDefDetails } from '../../services/form.service';
+import { useEffect, useState } from 'react';
+import { getFormDataByBusinessId } from '../../services/form.service';
 import { WorkflowApproval, WorkflowApprovalProcess, processWorkflowApproval } from '../../services/workflow-approval.service';
 import { processDefinitionStatisticsGrouped } from "../../services/workflow.service";
+import { FormPanel, IFormPanelProps } from "../form/form-panel.component";
 
 const useStyles = makeStyles({
   drawer: {
@@ -48,7 +46,6 @@ export type IWorkflowApprovalFormProcessProps = {
 
 export const WorkflowApprovalFormProcess = (props: IWorkflowApprovalFormProcessProps) => {
   const styles = useStyles();
-  const me = useMe();
 
   const [isOpen, setIsOpen] = useState(props.isOpen);
   const [selectedWorkflowApproval, setSelectedWorkflowApproval] = useState<WorkflowApproval>({ id: '', title: '' });
@@ -56,32 +53,40 @@ export const WorkflowApprovalFormProcess = (props: IWorkflowApprovalFormProcessP
   const [processDefinitions, setProcessDefinitions] = useState<any[]>([]);
   const [selectedProcessDefinition, setSelectedProcessDefinition] = useState<any>({ id: "", name: "" });
   const [inProcess, setInProcess] = useState(false);
-  const [formErros, setFormErrors] = useState<any>({});
   const [isDataReady, setIsDataReady] = useState(false);
 
-  const [formDefDetails, setFormDefDetails] = useState<FormDefDetail[]>([]);
-  const [selectedFormDefDetail, setSelectedFormDefDetail] = useState<FormDefDetail>({ id: '', key: '', name: '', schemas: '', enable: true });
-  const [formData, setFormData] = useState<any>({});
+  const [formData, setFormData] = useState<any[]>([]);
+  const [newFormData, setNewFormData] = useState<any[]>([]);
+  const [formErrors, setFormErrors] = useState<any[]>([]);
+  const [formPanelProps, setFormPanelProps] = useState<IFormPanelProps>({
+    formData: [], 
+    workflowApproval: props.workflowApproval,
+    readonly: props.readonly,
+    canAddNewForm: true,
+    onChange: (formData, newFormData) => {
+     setFormData(formData);
+     setNewFormData(newFormData);
+    },
+    onErrors: (errors) => {
+      setFormErrors(errors);
+    }
+  });
 
   useEffect(() => {
     setIsOpen(props.isOpen);
     setIsDataReady(false);
     setSelectedWorkflowApproval(props.workflowApproval || { id: '', title: '' });
-    setSelectedFormDefDetail({ id: '', key: '', name: '', schemas: '', enable: true });
     setSelectedProcessDefinition({ id: "", name: "" });
     if (!props.isOpen) return;
-    getFormDefDetails()
-      .then((data) => {
-        setFormDefDetails(data);
-        return processDefinitionStatisticsGrouped();
-      })
+    processDefinitionStatisticsGrouped()
       .then((rows) => {
         setProcessDefinitions(rows);
       })
       .finally(() => {
         setIsDataReady(true);
-      })
-  }, [props.isOpen]);
+      });
+    setFormPanelProps({...formPanelProps, readonly: props.readonly, workflowApproval: props.workflowApproval});
+  }, [props]);
 
   useEffect(() => {
     if (isDataReady && props.workflowApproval) {
@@ -93,55 +98,10 @@ export const WorkflowApprovalFormProcess = (props: IWorkflowApprovalFormProcessP
 
       getFormDataByBusinessId(wa.id).then((data) => {
         if (!data || !data.length) return;
-        let form = data[0];
-        let fd = formDefDetails.find((d) => d.id == form.def.id);
-        fd && setSelectedFormDefDetail(fd);
-        // form.data key-value array to formData
-        let formData: any = {};
-        form.data.forEach((d: any) => {
-          formData[d.key] = d.value;
-        });
-        setFormData(formData);
+        setFormPanelProps({...formPanelProps, formData: data});
       })
     }
   }, [isDataReady]);
-
-  useEffect(() => {
-    if (me && !props.readonly) {
-      setFormData({ userId: me.id, username: me.username })
-    }
-  }, [me]);
-
-  const createForm = useCallback(() => {
-    if (!selectedFormDefDetail || !selectedFormDefDetail.schemas) return;
-    const schema = JSON.parse(selectedFormDefDetail.schemas);
-    return <Form
-      // className={styles.form}
-      schema={schema.Schema}
-      validator={validator}
-      uiSchema={schema.UISchema}
-      formData={formData}
-      onChange={(data) => {
-        setFormData(data.formData)
-      }}
-      transformErrors={(errors) => {
-        setFormErrors(errors);
-        return errors.map((error) => {
-          if (error.name === 'required') {
-            if (error.property) {
-              const schemaProperty = schema.Schema.properties[error.property];
-              if (schemaProperty) {
-                error.message = `${schemaProperty.title}是必填项`;
-              }
-            }
-          }
-          return error;
-        });
-      }}
-      liveValidate
-      showErrorList={false}
-    />
-  }, [selectedFormDefDetail, formData]);
 
   const handleSubmit = () => {
     if (!selectedWorkflowApproval.processInstanceId 
@@ -155,8 +115,10 @@ export const WorkflowApprovalFormProcess = (props: IWorkflowApprovalFormProcessP
       processDefinitionId: selectedProcessDefinition.id,
       processInstanceId: selectedWorkflowApproval.processInstanceId,
       taskId: selectedWorkflowApproval.currentTask.id,
+      formData: formData,
+      newFormData: newFormData
     }
-    
+
     processWorkflowApproval(processData)
       .then(() => {
         setIsOpen(false);
@@ -192,7 +154,7 @@ export const WorkflowApprovalFormProcess = (props: IWorkflowApprovalFormProcessP
       </DrawerHeader>
       <DrawerBody className={styles.drawerBody}>
         <Field label="标题" required validationMessage={selectedWorkflowApproval.title.length > 1 ? undefined : '标题是必填项'}>
-          <Input id="title" readOnly={props.readonly} required value={selectedWorkflowApproval.title} onChange={(_, v) => {
+          <Input id="title" readOnly={props.readonly} disabled={props.readonly} required value={selectedWorkflowApproval.title} onChange={(_, v) => {
             setSelectedWorkflowApproval({ ...selectedWorkflowApproval, title: v.value });
           }} />
         </Field>
@@ -213,30 +175,14 @@ export const WorkflowApprovalFormProcess = (props: IWorkflowApprovalFormProcessP
           </Dropdown>
         </Field>
 
-        <Field label={"表单"} required validationMessage={selectedFormDefDetail.id ? undefined : '表单是必填项'}>
-          <Dropdown placeholder="表单" disabled={props.readonly} value={selectedFormDefDetail.name} selectedOptions={[(selectedFormDefDetail.id)]} onOptionSelect={(_, v) => {
-            if (v.optionValue) {
-              const selected = formDefDetails.find((d) => d.id == v.optionValue);
-              selected && setSelectedFormDefDetail(selected);
-              setSelectedWorkflowApproval({ ...selectedWorkflowApproval, formDefDetailId: v.optionValue });
-            }
-          }}>
-            {formDefDetails && formDefDetails.map((option: FormDefDetail) => (
-              <Option key={option.id} value={option.id} text={option.name}>
-                {option.name}
-              </Option>
-            ))}
-          </Dropdown>
-        </Field>
-
-        {createForm()}
+        <FormPanel  {...formPanelProps} />
 
 
       </DrawerBody>
       <DrawerFooter className={styles.drawerFooter}>
         <ToolbarButton appearance='primary'
           icon={<>{inProcess ? <Spinner size='tiny' /> : <Play20Regular />}</>}
-          disabled={inProcess}
+          disabled={inProcess || formErrors.length > 0}
           onClick={handleSubmit}
         >提交</ToolbarButton>
       </DrawerFooter>

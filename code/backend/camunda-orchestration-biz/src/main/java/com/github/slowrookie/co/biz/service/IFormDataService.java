@@ -1,6 +1,6 @@
 package com.github.slowrookie.co.biz.service;
 
-import com.github.slowrookie.co.biz.model.FormData;
+import com.github.slowrookie.co.biz.dto.FormDataConvert;
 import com.github.slowrookie.co.biz.model.FormDefDetail;
 
 import java.util.List;
@@ -8,7 +8,10 @@ import java.util.Map;
 
 public interface IFormDataService {
 
-    List<FormData> findByFormDetailIdAndBusinessId(String formDetailId, String businessId);
+    Map<FormDefDetail, List<FormDataConvert>> findDataMapByBusinessId(String businessId);
 
-    Map<FormDefDetail, List<FormData>> findDataMapByBusinessId(String businessId);
+    Map<FormDefDetail, List<FormDataConvert>> findDataMapByProcessInstanceIdAndTaskId(String processInstanceId, String taskId);
+
+    void convertType(FormDefDetail formDefDetail, List<FormDataConvert> fds);
+
 }

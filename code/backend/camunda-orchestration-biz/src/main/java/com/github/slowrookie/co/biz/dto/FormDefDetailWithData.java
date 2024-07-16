@@ -9,13 +9,13 @@ import java.io.Serializable;
 import java.util.List;
 
 @Data
-public class FormDefDetailAndDataDto implements Serializable {
+public class FormDefDetailWithData implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
     private FormDefDetail def;
 
-    private List<FormData> data;
+    private List<FormDataConvert> data;
 
 }

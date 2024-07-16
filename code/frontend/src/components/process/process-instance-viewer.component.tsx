@@ -28,7 +28,7 @@ const taskColumns: readonly Column<any>[] = ([
   }},
   {key: 'durationInMillis', name: '持续时间(秒)', resizable: true, renderCell: (data: any) => {
     let duration = data.row.durationInMillis;
-    if (!duration) {
+    if (duration == null) {
       return <span></span>
     }
     let seconds = Math.floor(duration / 1000);
@@ -36,6 +36,31 @@ const taskColumns: readonly Column<any>[] = ([
   }},
 ]);
 
+
+const activityInstanceColumns: readonly Column<any>[] = ([
+  {key: 'activityName', name: '节点', resizable: true, width: 200, renderCell: (data: any) => {
+    return <span>{data.row.activityName}({data.row.activityId})</span>
+  }},
+  {key: 'activityType', name: '类型', resizable: true, width: 80},
+  {key: 'assignee', name: '处理人', resizable: true, width: 80},
+  {key: 'startTime', name: '开始时间', resizable: true, width: 150, renderCell: (data: any) => {
+    return <span>{dayjs(data.row.startTime).format('YYYY-MM-DD HH:mm:ss')}</span>
+  }},
+  {key: 'endTime', name: '结束时间', resizable: true, width: 150, renderCell: (data: any) => {
+    if (!data.row.endTime) {
+      return <span></span>
+    }
+    return <span>{dayjs(data.row.endTime).format('YYYY-MM-DD HH:mm:ss')}</span>
+  }},
+  {key: 'durationInMillis', name: '持续时间(秒)', resizable: true, renderCell: (data: any) => {
+    let duration = data.row.durationInMillis;
+    if (!duration) {
+      return <span></span>
+    }
+    let seconds = Math.floor(duration / 1000);
+    return <span>{seconds}</span>
+  }},
+]);
 
 
 export const ProcessInstanceViewer = (props: IProcessInstanceViewerProps) => {
@@ -66,24 +91,38 @@ export const ProcessInstanceViewer = (props: IProcessInstanceViewerProps) => {
       <Tab icon={<DocumentFlowchart20Filled />} value="diagram">
         流程
       </Tab>
-      <Tab icon={<TaskListLtr20Regular />} value="activties">
-        节点
+      <Tab icon={<TaskListLtr20Regular />} value="userTasks">
+        用户节点
+      </Tab>
+      <Tab icon={<TaskListLtr20Regular />} value="activeTasks">
+        流程节点
       </Tab>
     </TabList>
     <div style={{width: '800px', height: '800px'}}>
-      {selectedTabValue === "diagram" && diagramXml && <BpmnViewer diagramXml={diagramXml} historicTasks={processInstanceInfo.historicTasks} 
-      currentTasks={processInstanceInfo.currentTasks} />}
-      {selectedTabValue === "activties" && <div>
+      {selectedTabValue === "diagram" && diagramXml && <BpmnViewer diagramXml={diagramXml} 
+      userTasks={processInstanceInfo.userTasks} 
+      currentTasks={processInstanceInfo.currentTasks} 
+      activityInstances={processInstanceInfo.activityInstances}/>}
+      {selectedTabValue === "userTasks" && <div>
         <DataGrid
           className="fill-grid rdg-light"
           style={{ height: "100%" }}
           columns={taskColumns}
-          rows={processInstanceInfo.historicTasks as any}
+          rows={processInstanceInfo.userTasks as any}
           rowHeight={30}
           rowKeyGetter={(r: any) => r.key}
         />
       </div>}
-      {selectedTabValue === "operations" && <div>operations</div>}
+      {selectedTabValue === "activeTasks" && <div>
+        <DataGrid
+          className="fill-grid rdg-light"
+          style={{ height: "100%" }}
+          columns={activityInstanceColumns}
+          rows={processInstanceInfo.activityInstances as any}
+          rowHeight={30}
+          rowKeyGetter={(r: any) => r.key}
+        />
+      </div>}
     </div>
     
   </div>);

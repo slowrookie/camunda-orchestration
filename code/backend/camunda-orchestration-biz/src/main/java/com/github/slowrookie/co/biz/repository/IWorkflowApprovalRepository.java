@@ -12,4 +12,5 @@ public interface IWorkflowApprovalRepository extends JpaRepository<WorkflowAppro
 
     Page<WorkflowApproval> findAllByProcessInstanceIdIn(Set<String> processInstanceIds, PageRequest of);
 
+    WorkflowApproval findByProcessInstanceId(String processInstanceId);
 }

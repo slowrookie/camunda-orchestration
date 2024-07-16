@@ -11,15 +11,14 @@ public interface IFormDefService {
 
     FormDef get(String id);
 
+    FormDef getByKey(String key);
+
     FormDefDetail create(FormDef formDef, FormDefDetail formDefDetail);
-
-    FormDefDetail getFormDetailById(String id);
-
-    FormDefDetail saveFormDefDetail(FormDefDetail formDefDetail);
 
     Iterable<FormDefDetail> findFormDefDetailLatest();
 
     Iterable<FormDefDetail> findFormDefDetailByFormDefId(String formDefId);
 
     Iterable<FormDefDetail> findFormDefDetails();
+
 }

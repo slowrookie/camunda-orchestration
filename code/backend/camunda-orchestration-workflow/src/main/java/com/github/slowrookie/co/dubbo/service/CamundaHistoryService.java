@@ -2,6 +2,7 @@ package com.github.slowrookie.co.dubbo.service;
 
 
 import com.github.slowrookie.co.dubbo.api.ICamundaHistoryService;
+import com.github.slowrookie.co.dubbo.model.CamundaHistoricActivityInstance;
 import com.github.slowrookie.co.dubbo.model.CamundaHistoricProcessInstance;
 import com.github.slowrookie.co.dubbo.model.CamundaHistoricTaskInstance;
 import jakarta.annotation.Resource;
@@ -55,12 +56,16 @@ public class CamundaHistoryService implements ICamundaHistoryService {
         }).toList();
     }
 
-    public void a(String processInstanceId) {
-        HistoricDetailQuery query = historyService.createHistoricDetailQuery();
+    public List<CamundaHistoricActivityInstance> getHistoricActivityInstance(String processInstanceId) {
+        HistoricActivityInstanceQuery query = historyService.createHistoricActivityInstanceQuery();
         query.processInstanceId(processInstanceId);
-        query.orderByTime();
-        query.desc();
-        List<HistoricDetail> historicDetails = query.list();
+        query.orderByHistoricActivityInstanceEndTime().desc();
+        List<HistoricActivityInstance> activityInstances = query.list();
+        return activityInstances.stream().map(v -> {
+            CamundaHistoricActivityInstance instance = new CamundaHistoricActivityInstance();
+            BeanUtils.copyProperties(v, instance);
+            return instance;
+        }).toList();
     }
 
 }

@@ -69,6 +69,6 @@ export const processDefinitionXmlById = (id: string): Promise<any> => {
 }
 
 export const getActivityInstance = (id: string): Promise<any> => {
-  return axios.get(`/api/workflow//process-instance/${id}/activity-instances`)
+  return axios.get(`/api/workflow/process-instance/${id}/activity-instances`)
     .then((res) => res.data);
 }

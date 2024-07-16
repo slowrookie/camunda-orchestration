@@ -42,6 +42,10 @@ public class FormData extends AbstractPersistableUuid implements Serializable {
     @Column(nullable = false)
     private String businessId;
 
+    private String processInstanceId;
+
+    private String taskId;
+
     @CreatedDate
     @Column(nullable = false)
     private Instant createdDate;

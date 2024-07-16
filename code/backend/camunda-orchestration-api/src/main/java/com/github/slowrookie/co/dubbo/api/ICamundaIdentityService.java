@@ -9,11 +9,17 @@ public interface ICamundaIdentityService {
 
     void saveUser(User user);
 
+    void modifyUser(User user);
+
     Group newGroup(String groupId);
 
     void saveGroup(Group group);
 
+    void modifyGroup(Group group);
+
     void createMembership(String userId, String groupId);
+
+    void deleteMembership(String userId, String groupId);
 
     boolean existsGroup(String groupId);
 

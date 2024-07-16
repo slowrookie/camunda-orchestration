@@ -4,12 +4,12 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 
-/**
- * @author jiaxing.liu
- * @date 2024/5/17
- **/
+
 @Data
-public class UserCreateDto {
+public class UserEditDto {
+
+    @NotNull
+    private String id;
 
     @NotNull
     @Pattern(regexp = "^[a-zA-Z0-9]{4,16}$")

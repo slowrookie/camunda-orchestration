@@ -1,6 +1,7 @@
 package com.github.slowrookie.co.auth.web;
 
 import com.github.slowrookie.co.auth.dto.UserCreateDto;
+import com.github.slowrookie.co.auth.dto.UserEditDto;
 import com.github.slowrookie.co.auth.model.User;
 import com.github.slowrookie.co.auth.service.IUserService;
 import jakarta.annotation.Resource;
@@ -13,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 
 @RestController
@@ -33,6 +35,19 @@ public class UserController {
         user.setUsername(createUserDto.getUsername());
         user.setPassword(createUserDto.getPassword());
         user = userService.newUser(user);
+        return ResponseEntity.ok(user);
+    }
+
+    @PostMapping("/user")
+    private ResponseEntity<Object> modify(@RequestBody @Valid UserEditDto e) {
+        Optional<User> userOpt = userService.getUser(e.getId());
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        User user = userOpt.get();
+        user.setUsername(e.getUsername());
+        user.setPassword(e.getPassword());
+        user = userService.edit(user);
         return ResponseEntity.ok(user);
     }
 

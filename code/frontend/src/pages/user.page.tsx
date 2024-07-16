@@ -1,10 +1,10 @@
-import { Button, DrawerBody, DrawerHeader, DrawerHeaderTitle, Input, Label, OverlayDrawer, Spinner, Toolbar, ToolbarButton, Tooltip, makeStyles, shorthands, tokens } from "@fluentui/react-components";
+import { Button, DrawerBody, DrawerHeader, DrawerHeaderTitle, Field, Input, Label, Link, OverlayDrawer, Spinner, Toolbar, ToolbarButton, Tooltip, makeStyles, shorthands, tokens } from "@fluentui/react-components";
 import { Add20Regular, Dismiss20Regular } from '@fluentui/react-icons';
 import { UIEvent, useCallback, useEffect, useState } from "react";
 import type { Column } from 'react-data-grid';
 import DataGrid from 'react-data-grid';
 import { Page } from '../services/api.service';
-import { User, createUser, getUsers } from "../services/auth.service";
+import { User, createUser, editUser, getUsers } from "../services/auth.service";
 
 const useStyles = makeStyles({
   page: {
@@ -46,10 +46,6 @@ const useStyles = makeStyles({
 
 const PAGE_SIZE = 100;
 
-const columns: readonly Column<User>[] = [
-  { key: 'id', name: 'ID', resizable: true },
-  { key: 'username', name: '用户名', resizable: true },
-];
 
 export const UserPage = () => {
   const styles = useStyles();
@@ -63,6 +59,16 @@ export const UserPage = () => {
   function rowKeyGetter(row: User) {
     return row.id;
   }
+
+  const columns: readonly Column<User>[] = [
+    { key: 'id', name: 'ID', resizable: true },
+    { key: 'username', name: '用户名', resizable: true, renderCell: (data: any) => {
+      return <Link onClick={() => {
+        setUser(data.row);
+        setIsOpen(true);
+      }}>{data.row.username}</Link>
+    }  },
+  ];
 
   useEffect(() => {
     if (pageReuqest) {
@@ -100,21 +106,19 @@ export const UserPage = () => {
           </DrawerHeaderTitle>
         </DrawerHeader>
         <DrawerBody>
-          <div className={styles.formField}>
-            <Label htmlFor={"username"}>用户名</Label>
+          <Field className={styles.formField} label="用户名" required validationMessage={/^[a-zA-Z0-9]{4,16}$/.test(user.username) ? undefined : '用户名格式不正确'}>
             <Input id="username" required value={user.username}
               onChange={(_, v) => { setUser({ ...user, username: v.value }) }}
             />
-          </div>
-          <div className={styles.formField}>
-            <Label htmlFor={"password"}>密码</Label>
-            <Input id="password" required value={user.password}
+          </Field>
+          <Field className={styles.formField} label="密码" required validationMessage={ (user.password && /^[a-zA-Z0-9]{6,16}$/.test(user.password)) ? undefined : '密码格式不正确'}>
+            <Input id="password" required value={user.password} type="password"
               onChange={(_, v) => { setUser({ ...user, password: v.value }) }}
             />
-          </div>
+          </Field>
           <div className={styles.formField}>
-            <Button appearance="primary" onClick={() => {
-              createUser(user).then(() => {
+            <Button appearance="primary" disabled={!user.username || !user.password} onClick={() => {
+              (user.id ? editUser(user) : createUser(user)).then(() => {
                 setIsOpen(false);
                 setUser({ id: '', password: '', username: '' });
                 setPageRequest({ number: 0, size: PAGE_SIZE });

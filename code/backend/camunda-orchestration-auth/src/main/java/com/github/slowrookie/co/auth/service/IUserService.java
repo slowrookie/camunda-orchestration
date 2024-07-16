@@ -22,7 +22,10 @@ public interface IUserService {
     // 添加用户
     User newUser(User user);
 
+    User edit(User user);
+
     List<User> findAllById(List<String> list);
 
     List<User> getUsers(List<String> ids);
+
 }

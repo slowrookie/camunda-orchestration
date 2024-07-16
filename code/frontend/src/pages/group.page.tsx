@@ -1,4 +1,4 @@
-import { AvatarGroup, AvatarGroupItem, AvatarGroupPopover, Button, DrawerBody, DrawerHeader, DrawerHeaderTitle, Dropdown, Input, Label, Option, OptionOnSelectData, OverlayDrawer, Persona, Spinner, Toolbar, ToolbarButton, Tooltip, makeStyles, partitionAvatarGroupItems, shorthands, tokens } from "@fluentui/react-components";
+import { AvatarGroup, AvatarGroupItem, AvatarGroupPopover, Button, DrawerBody, DrawerHeader, DrawerHeaderTitle, Dropdown, Field, Input, Link, Option, OptionOnSelectData, OverlayDrawer, Persona, Spinner, Toolbar, ToolbarButton, Tooltip, makeStyles, partitionAvatarGroupItems, shorthands, tokens } from "@fluentui/react-components";
 import { Add20Regular, Dismiss20Regular, Edit20Filled } from '@fluentui/react-icons';
 import { UIEvent, useCallback, useEffect, useState } from "react";
 import type { Column } from 'react-data-grid';
@@ -73,7 +73,12 @@ export const GroupPage = () => {
 
   const columns: readonly Column<Group>[] = ([
     { key: 'id', name: 'ID', resizable: true },
-    { key: 'name', name: '组名', resizable: true },
+    { key: 'name', name: '组名', resizable: true, renderCell: (data: any) => {
+      return <Link onClick={() => {
+        setGroup(data.row)
+        setIsOpen(true);
+      }}>{data.row.name}</Link>
+    }  },
     {
       key: 'users', name: '用户', renderCell: (data: any) => {
         if (!data.row.users) {
@@ -101,16 +106,6 @@ export const GroupPage = () => {
             </AvatarGroup>
           </div>
         );
-      }
-    },
-    {
-      key: '', name: '操作', renderCell: (data: any) => {
-        return <Tooltip content="编辑" relationship="description">
-          <Button appearance="subtle" id={`edit-${data.row.id}`} icon={<Edit20Filled />} size="small" onClick={() => {
-            setGroup(data.row);
-            setIsOpen(true);
-          }} />
-        </Tooltip>
       }
     }
   ]);
@@ -155,16 +150,16 @@ export const GroupPage = () => {
           </DrawerHeaderTitle>
         </DrawerHeader>
         <DrawerBody>
-          <div className={styles.formField}>
-            <Label htmlFor={"groupname"}>组名</Label>
+          <Field className={styles.formField} label="组名" required validationMessage={group.name.length >= 2 ? undefined : '组名格式不正确'}>
             <Input id="groupname" required value={group.name}
-              onChange={(_, v) => { setGroup({ ...group, name: v.value }) }}
+              onChange={(_, v) => { 
+                setGroup({ ...group, name: v.value }) 
+              }}
             />
-          </div>
-          <div className={styles.formField}>
-            <label id={'users'}>用户</label>
+          </Field>
+          <Field className={styles.formField} label="用户" required>
             <Dropdown aria-labelledby={"用户"} multiselect={true}
-              // defaultSelectedOptions={group.users?.map(u => u.id+"")}  
+              defaultSelectedOptions={group.users?.map(u => u.id+"")}  
               defaultValue={group.users?.map(u => `${u.username}`).join(",")}
               selectedOptions={group.users?.map(u => `${u.id}`)}
               onOptionSelect={handleUserOptionSelect}
@@ -182,8 +177,8 @@ export const GroupPage = () => {
                 </Option>
               })}
             </Dropdown>
-
-          </div>
+          </Field>
+          
           <div className={styles.formField}>
             <Button appearance="primary" onClick={() => {
               createGroup(group).then(() => {

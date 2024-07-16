@@ -76,6 +76,23 @@ public class UserServiceImpl implements UserDetailsService, IUserService {
     }
 
     @Override
+    public User edit(User user) {
+        String rawPassword = user.getPassword();
+        if (useRepository.existsByUsernameAndIdNot(user.getUsername(), user.getId())) {
+            throw new RuntimeException("User already exists");
+        }
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        User u = useRepository.save(user);
+        org.camunda.bpm.engine.identity.User camundaUser = camundaIdentityService.newUser(u.getId());
+        camundaUser.setId(u.getId());
+        camundaUser.setFirstName(u.getUsername());
+        camundaUser.setPassword(rawPassword);
+        camundaUser.setEmail(String.format("%s@email.com", u.getUsername()));
+        camundaIdentityService.modifyUser(camundaUser);
+        return u;
+    }
+
+    @Override
     public List<User> findAllById(List<String> list) {
         return useRepository.findAllById(list);
     }

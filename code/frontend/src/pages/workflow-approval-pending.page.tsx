@@ -16,7 +16,7 @@ import type { Column } from 'react-data-grid';
 import DataGrid from 'react-data-grid';
 import { ProcessInstanceViewer } from '../components/process/process-instance-viewer.component';
 import { WorkflowApprovalFormProcess } from '../components/workflow-approval/worflow-approval-form-process.component';
-import { IWorkflowApprovalFormProps, WorkflowApprovalForm } from '../components/workflow-approval/worflow-approval-form.component';
+import { IWorkflowApprovalFormProps } from '../components/workflow-approval/worflow-approval-form.component';
 import { Page } from '../services/api.service';
 import { FormDef } from '../services/form.service';
 import { WorkflowApproval, getWorkflowApprovalsPending } from '../services/workflow-approval.service';
@@ -69,7 +69,10 @@ export const WorkflowApprovalPendingPage = () => {
   const [workflowApprovalFormProcessProps, setWorkflowApprovalFormProcessProps] = useState<IWorkflowApprovalFormProps>({
     isOpen: false,
     readonly: false,
-    onSubmitted: () => { setPageRequest({ number: 0, size: PAGE_SIZE }); },
+    onSubmitted: () => { 
+      setPageRequest({ number: 0, size: PAGE_SIZE }); 
+      setWorkflowApprovalFormProcessProps({ ...workflowApprovalFormProcessProps, isOpen: false });
+    },
     onOpenChange: (open: boolean) => { 
       setWorkflowApprovalFormProcessProps({ ...workflowApprovalFormProcessProps, isOpen: open });
     }
@@ -106,9 +109,6 @@ export const WorkflowApprovalPendingPage = () => {
           </Popover>
         )
       }
-    },
-    {
-      key: 'operationTime', name: '操作时间'
     },
     {
       key: 'createdBy', name: '创建人'

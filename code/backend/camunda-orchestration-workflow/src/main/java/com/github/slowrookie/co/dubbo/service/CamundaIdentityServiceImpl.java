@@ -25,6 +25,16 @@ public class CamundaIdentityServiceImpl implements ICamundaIdentityService {
     }
 
     @Override
+    public void modifyUser(User user) {
+        User exists = identityService.createUserQuery().userId(user.getId()).singleResult();
+        if (exists != null) {
+            exists.setFirstName(user.getFirstName());
+            exists.setLastName(user.getPassword());
+            identityService.saveUser(exists);
+        }
+    }
+
+    @Override
     public Group newGroup(String groupId) {
         return identityService.newGroup(groupId);
     }
@@ -35,11 +45,28 @@ public class CamundaIdentityServiceImpl implements ICamundaIdentityService {
     }
 
     @Override
+    public void modifyGroup(Group group) {
+        Group exists = identityService.createGroupQuery().groupId(group.getId()).singleResult();
+        if (exists != null) {
+            exists.setName(group.getName());
+            exists.setType(group.getType());
+            identityService.saveGroup(exists);
+        }
+    }
+
+    @Override
     public void createMembership(String userId, String groupId) {
         if (existsMembership(userId, groupId)) {
             return;
         }
         identityService.createMembership(userId, groupId);
+    }
+
+    @Override
+    public void deleteMembership(String userId, String groupId) {
+        if (existsMembership(userId, groupId)) {
+            identityService.deleteMembership(userId, groupId);
+        }
     }
 
     @Override

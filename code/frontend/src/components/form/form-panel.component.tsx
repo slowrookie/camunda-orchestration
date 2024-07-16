@@ -25,6 +25,7 @@ export const FormPanel = (props: IFormPanelProps) => {
 
   useEffect(() => {
     setFormData(props.formData);
+    props.onChange && props.onChange(props.formData, newFormData);
   }, [props]);
 
   useEffect(() => {

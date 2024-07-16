@@ -99,6 +99,11 @@ export const createUser = async (u: User): Promise<User> => {
     .then((res) => res.data);
 }
 
+export const editUser = async (u: User): Promise<User> => {
+  return axios.post('/api/auth/user', u)
+    .then((res) => res.data);
+}
+
 export const getUsersByIds = async (ids: string[]): Promise<User[]> => {
   return axios.post('/api/auth/users/ids', ids)
     .then((res) => res.data);

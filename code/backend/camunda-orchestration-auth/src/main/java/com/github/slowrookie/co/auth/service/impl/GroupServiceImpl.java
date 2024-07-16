@@ -42,12 +42,28 @@ public class GroupServiceImpl implements IGroupService {
             camundaGroup.setName(group.getName());
             camundaGroup.setType("WORKFLOW");
             camundaIdentityService.saveGroup(camundaGroup);
+        } else {
+            org.camunda.bpm.engine.identity.Group camundaGroup = camundaIdentityService.newGroup(group.getId());
+            camundaGroup.setName(group.getName());
+            camundaGroup.setType("WORKFLOW");
+            camundaIdentityService.modifyGroup(camundaGroup);
         }
         // membership
         if (CollectionUtils.isEmpty(users)) {
+            groupUserRepository.deleteByGroupId(group.getId());
             return;
         }
         String groupId = group.getId();
+        List<User> removeUsers = groupUserRepository.findByGroupId(group.getId())
+                .stream()
+                .map(GroupUser::getUser)
+                .filter(user -> !users.contains(user))
+                .toList();
+        if (!CollectionUtils.isEmpty(removeUsers)) {
+            groupUserRepository.deleteByGroupIdAndUserIdIn(group.getId(), removeUsers.stream().map(User::getId).toList());
+            removeUsers.forEach(user -> camundaIdentityService.deleteMembership(user.getId(), groupId));
+        }
+
         List<GroupUser> groupUsers = users.stream()
                 .map(user -> new GroupUser(groupId, user.getId()))
                 .toList();

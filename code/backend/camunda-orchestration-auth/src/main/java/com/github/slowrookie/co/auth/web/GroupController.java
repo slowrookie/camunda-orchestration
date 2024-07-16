@@ -55,6 +55,7 @@ public class GroupController {
             return ResponseEntity.notFound().build();
         }
         Group group = go.get();
+        group.setName(dto.getName());
         groupService.groupWithUsers(group, dto.getUsers());
         return ResponseEntity.noContent().build();
     }

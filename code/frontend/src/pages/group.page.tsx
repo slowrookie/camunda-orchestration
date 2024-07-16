@@ -1,5 +1,5 @@
 import { AvatarGroup, AvatarGroupItem, AvatarGroupPopover, Button, DrawerBody, DrawerHeader, DrawerHeaderTitle, Dropdown, Field, Input, Link, Option, OptionOnSelectData, OverlayDrawer, Persona, Spinner, Toolbar, ToolbarButton, Tooltip, makeStyles, partitionAvatarGroupItems, shorthands, tokens } from "@fluentui/react-components";
-import { Add20Regular, Dismiss20Regular, Edit20Filled } from '@fluentui/react-icons';
+import { Add20Regular, Dismiss20Regular } from '@fluentui/react-icons';
 import { UIEvent, useCallback, useEffect, useState } from "react";
 import type { Column } from 'react-data-grid';
 import DataGrid from 'react-data-grid';
@@ -75,6 +75,8 @@ export const GroupPage = () => {
     { key: 'id', name: 'ID', resizable: true },
     { key: 'name', name: '组名', resizable: true, renderCell: (data: any) => {
       return <Link onClick={() => {
+        console.log(data.row);
+        
         setGroup(data.row)
         setIsOpen(true);
       }}>{data.row.name}</Link>
@@ -157,10 +159,12 @@ export const GroupPage = () => {
               }}
             />
           </Field>
+          
           <Field className={styles.formField} label="用户" required>
             <Dropdown aria-labelledby={"用户"} multiselect={true}
-              defaultSelectedOptions={group.users?.map(u => u.id+"")}  
+              // defaultSelectedOptions={group.users?.map(u => u.id+"")}  
               defaultValue={group.users?.map(u => `${u.username}`).join(",")}
+              value={group.users?.map(u => `${u.username}`).join(",")}
               selectedOptions={group.users?.map(u => `${u.id}`)}
               onOptionSelect={handleUserOptionSelect}
             >

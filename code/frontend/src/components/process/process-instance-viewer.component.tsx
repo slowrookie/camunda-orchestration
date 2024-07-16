@@ -1,5 +1,5 @@
 import { SelectTabData, SelectTabEvent, Tab, TabList, TabValue } from "@fluentui/react-components";
-import { DocumentFlowchart20Filled, TaskListLtr20Regular } from "@fluentui/react-icons";
+import { DocumentFlowchart20Filled, TaskListLtr20Regular, TaskListSquarePerson20Regular } from "@fluentui/react-icons";
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 import type { Column } from 'react-data-grid';
@@ -91,7 +91,7 @@ export const ProcessInstanceViewer = (props: IProcessInstanceViewerProps) => {
       <Tab icon={<DocumentFlowchart20Filled />} value="diagram">
         流程
       </Tab>
-      <Tab icon={<TaskListLtr20Regular />} value="userTasks">
+      <Tab icon={<TaskListSquarePerson20Regular />} value="userTasks">
         用户节点
       </Tab>
       <Tab icon={<TaskListLtr20Regular />} value="activeTasks">
